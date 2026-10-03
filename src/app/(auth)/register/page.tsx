@@ -149,7 +149,7 @@ export default function RegisterPage() {
         setStep("success");
       } else if (data.user && data.session) {
         // No email confirmation required - user is signed in
-        // Redirect to onboarding or dashboard
+        // Redirect to onboarding (mandatory for new users)
         router.push("/onboarding");
         router.refresh();
       } else {

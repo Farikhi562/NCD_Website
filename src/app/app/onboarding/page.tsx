@@ -22,7 +22,7 @@ const interestOptions = [
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, refreshProfile } = useAuth();
   const supabase = createClient();
 
   const [displayName, setDisplayName] = useState("");
@@ -76,21 +76,20 @@ export default function OnboardingPage() {
     setLoading(true);
 
     try {
-      // Try to update the profile with onboarding data
-      // This will work if the profiles table has these columns
+      // Update the profile with onboarding data and mark onboarding as completed
       const { error: updateError } = await supabase
         .from("profiles")
         .update({
           full_name: displayName.trim(),
-          // These fields may not exist yet - we try gracefully
-          // bio: bio.trim(),
-          // interests: interests,
+          onboarding_completed: true,
         })
         .eq("id", user.id);
 
       if (updateError) {
-        console.warn("Profile update failed (columns may not exist yet):", updateError);
-        // Don't show error to user - onboarding is optional preparation
+        console.error("Profile update failed:", updateError);
+        setError("Failed to save profile. Please try again.");
+        setLoading(false);
+        return;
       }
 
       // Try to insert into members table if it exists
@@ -100,28 +99,22 @@ export default function OnboardingPage() {
           id: user.id,
           email: user.email,
           full_name: displayName.trim(),
-          // bio: bio.trim(),
-          // interests: interests,
           is_public: true,
         });
 
       if (memberError) {
-        console.warn("Member upsert failed (table/columns may not exist yet):", memberError);
+        console.warn("Member upsert failed:", memberError);
       }
+
+      // Refresh the auth context to update onboarding_completed status
+      await refreshProfile();
 
       setStep("complete");
     } catch (err) {
       console.error("Onboarding error:", err);
-      // Don't block the user - onboarding is preparation
-      setStep("complete");
-    } finally {
+      setError("An unexpected error occurred. Please try again.");
       setLoading(false);
     }
-  };
-
-  const handleSkip = () => {
-    router.push("/app/dashboard");
-    router.refresh();
   };
 
   const renderProfileStep = () => (
@@ -172,9 +165,6 @@ export default function OnboardingPage() {
       )}
 
       <div className="mt-6 flex gap-3">
-        <Button type="button" variant="secondary" onClick={handleSkip} disabled={loading} className="flex-1">
-          Skip for now
-        </Button>
         <Button type="submit" disabled={loading} className="flex-1">
           {loading ? <Loader2 className="size-4 animate-spin" /> : "Continue"}
           <ArrowRight className="size-4" />

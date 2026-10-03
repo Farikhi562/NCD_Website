@@ -42,7 +42,23 @@ export default function LoginPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      router.push(redirectTo);
+      // Check if user needs onboarding
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("onboarding_completed")
+          .eq("id", user.id)
+          .single();
+        
+        if (profile && !profile.onboarding_completed) {
+          router.push("/onboarding");
+        } else {
+          router.push(redirectTo);
+        }
+      } else {
+        router.push(redirectTo);
+      }
       router.refresh();
     }
   };

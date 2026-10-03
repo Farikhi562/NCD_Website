@@ -16,6 +16,7 @@ interface AuthContextType {
   isAdmin: boolean;
   isTreasurer: boolean;
   isMember: boolean;
+  needsOnboarding: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -84,6 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const role = profile?.role ?? "member";
+  const needsOnboarding = profile ? !profile.onboarding_completed : true;
 
   return (
     <AuthContext.Provider
@@ -96,6 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAdmin: role === "admin",
         isTreasurer: role === "treasurer",
         isMember: role === "member",
+        needsOnboarding,
       }}
     >
       {children}
