@@ -1,0 +1,143 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   NCD design tokens — source of truth: design.md §3–§11
+   Components reference token names, never raw hex.
+------------------------------------------------------------------- */
+@theme {
+  /* Surfaces (design.md §3.1) */
+  --color-ncd-black: #09090b;
+  --color-ncd-dark: #0f1012;
+  --color-ncd-surface: #141518;
+  --color-ncd-elevated: #191b1f;
+  --color-ncd-hover: #1e2126;
+
+  /* Text (§3.2). muted: non-essential text only, see design.md §3.2 */
+  --color-text-primary: #f4f4f5;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #71717a;
+  --color-text-disabled: #52525b;
+
+  /* Borders (§3.3) */
+  --color-border: #27272a;
+  --color-border-strong: #3f3f46;
+  --color-border-subtle: rgb(255 255 255 / 0.06);
+
+  /* Accent (§3.4). electric = fills; lavender = accent text, links, focus */
+  --color-ncd-electric: #7c3aed;
+  --color-ncd-violet: #8b5cf6;
+  --color-ncd-lavender: #a78bfa;
+  --color-accent-tint: rgb(124 58 237 / 0.12);
+  --color-accent-border: rgb(124 58 237 / 0.4);
+
+  /* Semantic (§4). Meaning only, never decoration */
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
+
+  /* Radius (§9): 4, 6, 8, 10, 12, 16 only */
+  --radius-*: initial;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+
+  /* Fonts (§5): variables are set by next/font in layout.tsx */
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Shadow (§11): overlays only */
+  --shadow-overlay: 0 8px 24px rgb(0 0 0 / 0.4);
+
+  /* Motion (§26) */
+  --ease-ncd: cubic-bezier(0.2, 0, 0, 1);
+}
+
+:root {
+  color-scheme: dark;
+  --header-height: 56px;
+}
+
+html {
+  scroll-padding-top: calc(var(--header-height) + 16px);
+  background: var(--color-ncd-black);
+}
+
+body {
+  background: var(--color-ncd-black);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 24px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-accent-tint);
+  color: var(--color-text-primary);
+}
+
+/* Focus (§3.4, §28): 2px lavender ring, 2px offset, every interactive element */
+:focus-visible {
+  outline: 2px solid var(--color-ncd-lavender);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------
+   Type scale (design.md §7). Mobile values step down below md.
+   Weights limited to 400 / 500 / 600.
+------------------------------------------------------------------- */
+@layer components {
+  .type-display { font-size: 40px; line-height: 48px; font-weight: 600; letter-spacing: -0.02em; }
+  .type-h1      { font-size: 32px; line-height: 40px; font-weight: 600; letter-spacing: -0.02em; }
+  .type-h2      { font-size: 26px; line-height: 34px; font-weight: 600; }
+  .type-h3      { font-size: 20px; line-height: 28px; font-weight: 600; }
+  .type-h4      { font-size: 18px; line-height: 26px; font-weight: 600; }
+  .type-lead    { font-size: 17px; line-height: 26px; font-weight: 400; }
+  .type-body    { font-size: 15px; line-height: 24px; font-weight: 400; }
+  .type-small   { font-size: 14px; line-height: 20px; font-weight: 400; }
+  .type-caption { font-size: 12px; line-height: 18px; font-weight: 400; }
+  .type-label   { font-size: 12px; line-height: 16px; font-weight: 500; }
+
+  @media (min-width: 768px) {
+    .type-display { font-size: 64px; line-height: 72px; }
+    .type-h1      { font-size: 48px; line-height: 56px; }
+    .type-h2      { font-size: 36px; line-height: 44px; }
+    .type-h3      { font-size: 24px; line-height: 32px; }
+    .type-lead    { font-size: 18px; line-height: 28px; }
+  }
+
+  .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+}
+
+/* Reading column (design.md §12): 720–820px */
+.reading { max-width: 768px; }
+
+/* Skeleton shimmer: opacity only, off under reduced motion (§24) */
+@keyframes ncd-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+.skeleton { background: var(--color-ncd-elevated); border-radius: var(--radius-md); animation: ncd-pulse 1.6s var(--ease-ncd) infinite; }
+
+/* Single orchestrated moment (§26): ecosystem reveal on first view.
+   Progressive enhancement: browsers without view timelines show it static. */
+@supports (animation-timeline: view()) {
+  @keyframes ncd-reveal { from { opacity: 0.4; } to { opacity: 1; } }
+  .ecosystem-node {
+    animation: ncd-reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 60%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .ecosystem-node { opacity: 1 !important; }
+}
