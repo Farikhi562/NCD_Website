@@ -18,17 +18,20 @@ function isActive(pathname: string, href: string) {
 
 function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
-  const { profile, user, signOut, isSigningOut } = useAuth();
+  const { profile, user, signOut, isSigningOut, isAdmin } = useAuth();
   const name = profile?.full_name ?? user?.email?.split("@")[0] ?? "Member";
 
   return (
     <div className="flex h-full flex-col">
       <nav aria-label="Workspace" className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
-        {appNavGroups.map((group) => (
+        {appNavGroups.map((group) => {
+          const items = group.items.filter((item) => !item.adminOnly || isAdmin);
+          if (items.length === 0) return null;
+          return (
           <div key={group.heading}>
             <p className="type-label px-3 pb-2 text-text-muted uppercase tracking-wider">{group.heading}</p>
             <ul className="space-y-0.5">
-              {group.items.map((item) => {
+              {items.map((item) => {
                 const active = isActive(pathname, item.href);
                 return (
                   <li key={item.href}>
@@ -48,7 +51,8 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
               })}
             </ul>
           </div>
-        ))}
+          );
+        })}
       </nav>
 
       <div className="border-t border-border p-3">

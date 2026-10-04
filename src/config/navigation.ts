@@ -5,7 +5,7 @@
  * PUBLIC  = Discover NCD  (top bar, visitors)
  * /app/*  = Work in NCD   (sidebar, signed-in members)
  */
-export type NavItem = { label: string; href: string };
+export type NavItem = { label: string; href: string; /** Hidden unless the viewer's role is admin. */ adminOnly?: boolean };
 export type NavGroup = { heading: string; items: NavItem[] };
 
 export const publicPrimaryNav: NavItem[] = [
@@ -20,7 +20,7 @@ export const publicPrimaryNav: NavItem[] = [
 ];
 
 /** Logged-out only. Signed-in users never see Login / Register. */
-export const publicAuthNav = { login: { label: "Login", href: "/login" }, join: { label: "Join NCD", href: "/register" } };
+export const publicAuthNav = { login: { label: "Login", href: "/login" }, join: { label: "Join NCD", href: "/join" } };
 
 /** Signed-in sidebar. Three groups, nothing else (design: no crowded sidebar). */
 export const appNavGroups: NavGroup[] = [
@@ -33,6 +33,7 @@ export const appNavGroups: NavGroup[] = [
       { label: "Competitions", href: "/app/competitions" },
       { label: "Knowledge", href: "/app/knowledge" },
       { label: "Activities", href: "/app/activities" },
+      { label: "My application", href: "/app/application" },
     ],
   },
   {
@@ -42,6 +43,7 @@ export const appNavGroups: NavGroup[] = [
       { label: "Growth", href: "/app/growth" },
       { label: "Documentation", href: "/app/documentation" },
       { label: "Kas", href: "/app/kas" },
+      { label: "Membership", href: "/app/membership-applications", adminOnly: true },
     ],
   },
 ];

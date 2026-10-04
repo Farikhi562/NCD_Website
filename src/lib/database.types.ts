@@ -30,7 +30,8 @@ export interface Profile {
 
 export interface Member extends Profile {
   // Extended member info for directory
-  email: string;
+  // Nullable: approved members carry no publicly readable address (see migration 004).
+  email: string | null;
   cohort: string | null;
   major: string | null;
   skills: string[] | null;
@@ -39,6 +40,57 @@ export interface Member extends Profile {
   is_public: boolean;
   // Organizational role (separate from auth role)
   org_role: OrgRole | null;
+}
+
+/** Membership application workflow (migration 004). */
+export type MembershipApplicationStatus = "pending" | "under_review" | "approved" | "rejected";
+
+/** The only documents NCD accepts as proof of active Universitas Gunadarma enrolment. */
+export type VerificationDocumentType = "KRS" | "KTM";
+
+export interface MembershipApplication {
+  id: string;
+  user_id: string;
+  full_name: string;
+  npm: string;
+  university: string;
+  faculty: string;
+  study_program: string;
+  semester: number;
+  email: string;
+  whatsapp: string;
+  motivation: string;
+  skills: string;
+  contribution: string;
+  document_type: VerificationDocumentType;
+  document_path: string;
+  status: MembershipApplicationStatus;
+  submitted_at: string;
+  reviewed_at: string | null;
+  member_id: string | null;
+  created_at: string;
+  /** Internal — column grant keeps these server-side only. */
+  reviewer_id?: string | null;
+  review_note?: string | null;
+}
+
+/** Live capacity from `ncd_membership_capacity()`. remaining = max - confirmed, computed by the caller. */
+export interface MembershipCapacity {
+  max_members: number;
+  confirmed_members: number;
+}
+
+/** Notification queued for nexatechlabs271@gmail.com; delivered server-side when a provider is configured. */
+export interface EmailOutboxMessage {
+  id: string;
+  recipient: string;
+  subject: string;
+  kind: string;
+  related_application_id: string | null;
+  status: "pending" | "sent" | "failed";
+  last_error: string | null;
+  created_at: string;
+  sent_at: string | null;
 }
 
 export interface Activity {

@@ -57,6 +57,11 @@ export async function middleware(request: NextRequest) {
     "/auth/confirm",
     "/nexa", // public page linked from the site nav and footer
     "/terms",
+    "/join", // public membership application page; the form itself requires a session
+    // Pre-existing bug fixed here: these two were treated as protected routes
+    // and 307-redirected to /login, so crawlers could never read them.
+    "/sitemap.xml",
+    "/robots.txt",
   ];
 
   // Check if the path is a public route or starts with a public route prefix

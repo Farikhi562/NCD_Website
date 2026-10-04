@@ -373,6 +373,9 @@ Cross-cutting requirements:
 | `documents` | Files (proposals, reports, receipts) | — | types, visibility |
 | `media_assets` | Images/videos for documentation | — | storage rules |
 | `periods` | Kepengurusan/semester | name, start, end | first period Oct 2026–Apr 2027, exact dates `UNDEFINED` |
+| `membership_applications` | Membership intake (`/join` → admin review) [D-05] | user_id, full_name, npm, university (fixed `Universitas Gunadarma`), faculty, study_program, semester (1–14), email, whatsapp, motivation, skills, contribution, document_type (KRS/KTM), document_path, status (`pending` → `under_review` → `approved`/`rejected`), submitted_at, reviewed_at, member_id, review_note (admin-only) | Re-application after rejection allowed; blocked while open / once approved. Approved row creates the `members` record (migration 004) |
+| `ncd_membership_config` | Capacity switch | `max_members` (31), updated_at | Raising/lowering the cap is an admin decision; read via `ncd_membership_capacity()` RPC |
+| `email_outbox` | Notification queue | recipient, subject, body, kind, status (`pending`/`sent`/`failed`), related_application_id | Provider `DECISION NEEDED` (D-26); rows are written by trigger, delivered server-side |
 
 **Relational rules**
 - Every record that can differ across time (members' roles, activities, projects, competitions, squads, retrospectives, kas entries) belongs to a `period`.
@@ -519,7 +522,7 @@ Tracked here so nothing is silently assumed. Priority: **P0** blocks MVP; **P1**
 | D-02 | P0 | **Brand colors**: NCD document uses a teal/navy NEXA visual identity; the brief mandates a dark neutral + violet identity. Does NCD diverge from NEXA branding? Logo usage? | See `design.md` §1 |
 | D-03 | P0 | **Kas visibility**: public, members only, or leadership only? Who can write entries (no treasurer role exists)? | NCD-DOC says "bisa dilihat anggota" only |
 | D-04 | P0 | **Who is ADMIN**; can LEADERSHIP act as ADMIN? | No admin role in NCD-DOC |
-| D-05 | P0 | **Membership & sign-up flow** (invite-only? approval?) | No onboarding defined |
+| D-05 | P0 | **Membership & sign-up flow** — *decided 2026-10-05*: public application on `/join` → admin review → approve/reject; hard cap `max_members = 31`; approval creates the `members` row | No onboarding defined |
 | D-06 | P0 | **Public people page**: consent model, which fields public | Privacy |
 | D-07 | P0 | **UI language** (EN / ID / both) | Brief in English; org in Indonesian |
 | D-08 | P1 | Retrospective **six questions** | Mentioned, not written |
@@ -540,6 +543,7 @@ Tracked here so nothing is silently assumed. Priority: **P0** blocks MVP; **P1**
 | D-23 | P2 | Domain / canonical host / hosting | Not defined |
 | D-24 | P2 | Leadership photo usage and consent | PDF contains photos |
 | D-25 | P2 | Monitoring view for Wakil | Role implies it; feature not specified |
+| D-26 | P2 | **Email provider** for application notifications | Outbox records `nexatechlabs271@gmail.com` notifications; `RESEND_API_KEY` transport is optional and unverified until a provider is chosen |
 
 ### Observed gaps between the brief and the NCD document
 

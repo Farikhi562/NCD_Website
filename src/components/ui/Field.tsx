@@ -66,3 +66,27 @@ export function InputWithIcon({ id, label, helper, error, required, icon, classN
     </Field>
   );
 }
+
+type TextAreaProps = Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "id"> & {
+  id: string;
+  label: string;
+  helper?: string;
+  error?: string;
+  required?: boolean;
+};
+
+/** Multi-line field for the short application questions (design.md §16). */
+export function TextArea({ id, label, helper, error, required, className, ...props }: TextAreaProps) {
+  return (
+    <Field id={id} label={label} helper={helper} error={error} required={required}>
+      <textarea
+        id={id}
+        required={required}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `${id}-error` : helper ? `${id}-helper` : undefined}
+        className={cn(controlClass, "min-h-28 py-2 leading-relaxed", className)}
+        {...props}
+      />
+    </Field>
+  );
+}

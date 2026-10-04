@@ -135,21 +135,19 @@ export default function OnboardingPage() {
         return;
       }
 
-      // Also upsert into members table for organization directory
+      // The member directory is only written by approving an application
+      // (migration 004), so onboarding refreshes an existing row instead of
+      // inserting one: filling in a profile never makes someone a member.
       const { error: memberError } = await supabase
         .from("members")
-        .upsert({
-          id: user.id,
-          email: user.email,
+        .update({
           full_name: displayName.trim(),
-          npm: npm.trim() || null,
-          bio: bio.trim() || null,
           interests: interests.length > 0 ? interests : null,
-          is_public: true,
-        });
+        })
+        .eq("id", user.id);
 
       if (memberError) {
-        console.warn("Member upsert failed:", memberError);
+        console.warn("Member directory update skipped:", memberError.message);
       }
 
       // Refresh the auth context to update onboarding_completed status

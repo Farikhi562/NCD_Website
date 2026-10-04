@@ -216,21 +216,21 @@ export default function ProfilePage() {
         throw new Error("Failed to save profile. Please try again.");
       }
 
-      // Also update members table for organization directory
+      // Directory rows are created only by approving an application
+      // (migration 004); a profile edit refreshes the row when one exists and
+      // never inserts a new member. The address stays on the profile, not on
+      // the publicly readable directory row.
       const { error: memberError } = await supabase
         .from("members")
-        .upsert({
-          id: user.id,
-          email: user.email,
+        .update({
           full_name: formData.full_name.trim() || null,
-          bio: formData.bio.trim() || null,
           interests: formData.interests.length > 0 ? formData.interests : null,
           avatar_url: avatarUrl,
-          is_public: true,
-        });
+        })
+        .eq("id", user.id);
 
       if (memberError) {
-        console.warn("Member upsert failed:", memberError);
+        console.warn("Member directory update skipped:", memberError.message);
       }
 
       // Refresh auth context
