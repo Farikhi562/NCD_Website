@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { FileText } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card } from "@/components/ui/Card";
@@ -99,7 +98,7 @@ export default function TermsPage() {
         <section className="mb-8">
           <h2 className="type-h3 font-medium mb-4">9. Disclaimer of Warranties</h2>
           <p className="type-body text-text-secondary">
-            The Site is provided "as is" and "as available" without warranties of any kind, either express or implied. NCD does not warrant that the Site will be uninterrupted, error-free, or free of viruses or other harmful components.
+            The Site is provided &#34;as is&#34; and &#34;as available&#34; without warranties of any kind, either express or implied. NCD does not warrant that the Site will be uninterrupted, error-free, or free of viruses or other harmful components.
           </p>
         </section>
 

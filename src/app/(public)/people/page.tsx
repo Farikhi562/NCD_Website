@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Users, User, Award, Building2, Users as UsersIcon } from "lucide-react";
+import { Users, Award, Building2, Users as UsersIcon } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -27,6 +27,93 @@ const leadership = [
     division: "Leadership",
     description: "Koordinasi eksekusi, monitoring, dan eksekusi program",
     avatar: "MFAF",
+  },
+];
+
+const members = [
+  {
+    name: "Dian Aulia Febrianti",
+    role: "Anggota",
+    division: "TBD",
+    description: "Anggota NCD",
+    avatar: "DAF",
+  },
+  {
+    name: "Derly Jonathan Yoffan",
+    role: "Anggota",
+    division: "TBD",
+    description: "Anggota NCD",
+    avatar: "DJY",
+  },
+  {
+    name: "Syawalludin Firoh Rahman",
+    role: "Anggota",
+    division: "TBD",
+    description: "Anggota NCD",
+    avatar: "SFR",
+  },
+  {
+    name: "Annisa Saskia",
+    role: "Anggota",
+    division: "TBD",
+    description: "Anggota NCD",
+    avatar: "AS",
+  },
+  {
+    name: "Sri Gunarti Wijiastuti",
+    role: "Anggota",
+    division: "TBD",
+    description: "Anggota NCD",
+    avatar: "SGW",
+  },
+  {
+    name: "Mochamad Triandra Andantyo",
+    role: "Anggota",
+    division: "TBD",
+    description: "Anggota NCD",
+    avatar: "MTA",
+  },
+  {
+    name: "Ghazali Syaqih Husein",
+    role: "Anggota",
+    division: "TBD",
+    description: "Anggota NCD",
+    avatar: "GSH",
+  },
+  {
+    name: "Putri Aura Wening",
+    role: "Anggota",
+    division: "TBD",
+    description: "Anggota NCD",
+    avatar: "PAW",
+  },
+  {
+    name: "Muhammad Iqbal Fajri",
+    role: "Anggota",
+    division: "TBD",
+    description: "Anggota NCD",
+    avatar: "MIF",
+  },
+  {
+    name: "Chantika Shinta Sgonia",
+    role: "Anggota",
+    division: "TBD",
+    description: "Anggota NCD",
+    avatar: "CSS",
+  },
+  {
+    name: "Nedri Febrianto",
+    role: "Anggota",
+    division: "TBD",
+    description: "Anggota NCD",
+    avatar: "NF",
+  },
+  {
+    name: "Sheva Putra Firdaus",
+    role: "Anggota",
+    division: "TBD",
+    description: "Anggota NCD",
+    avatar: "SPF",
   },
 ];
 
@@ -95,6 +182,25 @@ export default function Page() {
                     <UsersIcon className="size-3" />
                     <span>Leadership</span>
                   </div>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* Members Section */}
+      <section className="mb-12">
+        <h2 className="type-h3 font-medium mb-6">Members</h2>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {members.map((member) => (
+            <Card key={member.name} className="p-4">
+              <div className="flex items-start gap-3">
+                <Avatar name={member.name} className="h-12 w-12" />
+                <div className="flex-1 min-w-0">
+                  <h3 className="type-h4 font-medium truncate">{member.name}</h3>
+                  <Badge tone="neutral" className="text-xs mt-1">{member.role}</Badge>
+                  <p className="type-caption text-text-muted mt-1 truncate">{member.description}</p>
                 </div>
               </div>
             </Card>

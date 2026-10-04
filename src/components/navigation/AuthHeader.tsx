@@ -1,20 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LogOut, User, LayoutDashboard } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { NavLink } from "./NavLink";
 import { IconButton } from "@/components/ui/IconButton";
 import { Sheet } from "@/components/ui/Sheet";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { appNav, appSecondaryNav } from "@/config/navigation";
-import { cn } from "@/lib/utils";
 
 export function AuthHeader() {
-  const { user, profile, signOut, loading } = useAuth();
-  const pathname = usePathname();
+  const { signOut, loading } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   if (loading) {

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { FileText, Calendar, Users, MapPin, Clock } from "lucide-react";
+import { Users, Clock } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";

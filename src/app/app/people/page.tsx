@@ -1,25 +1,226 @@
-import type { Metadata } from "next";
-import { Users } from "lucide-react";
-import { ModulePage } from "@/components/ui/ModulePage";
+"use client";
+
+import { Search } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { Card } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
-import { emptyStates } from "@/config/content";
+import { useState } from "react";
 
-export const metadata: Metadata = {
-  title: "People",
-  description: "NCD members directory.",
-};
+const members = [
+  { name: "Mirza Danisywar Noor Wahyu", role: "Ketua Periode I", division: "Leadership", avatar: "MDNW", description: "Menentukan arah strategis dan keputusan organisasi" },
+  { name: "Muhamad Fauzan Al Farikhi", role: "Wakil Ketua Periode I", division: "Leadership", avatar: "MFAF", description: "Koordinasi eksekusi, monitoring, dan eksekusi program" },
+  { name: "Dian Aulia Febrianti", role: "Anggota", division: "TBD", avatar: "DAF", description: "Anggota NCD" },
+  { name: "Derly Jonathan Yoffan", role: "Anggota", division: "TBD", avatar: "DJY", description: "Anggota NCD" },
+  { name: "Syawalludin Firoh Rahman", role: "Anggota", division: "TBD", avatar: "SFR", description: "Anggota NCD" },
+  { name: "Annisa Saskia", role: "Anggota", division: "TBD", avatar: "AS", description: "Anggota NCD" },
+  { name: "Sri Gunarti Wijiastuti", role: "Anggota", division: "TBD", avatar: "SGW", description: "Anggota NCD" },
+  { name: "Mochamad Triandra Andantyo", role: "Anggota", division: "TBD", avatar: "MTA", description: "Anggota NCD" },
+  { name: "Ghazali Syaqih Husein", role: "Anggota", division: "TBD", avatar: "GSH", description: "Anggota NCD" },
+  { name: "Putri Aura Wening", role: "Anggota", division: "TBD", avatar: "PAW", description: "Anggota NCD" },
+  { name: "Muhammad Iqbal Fajri", role: "Anggota", division: "TBD", avatar: "MIF", description: "Anggota NCD" },
+  { name: "Chantika Shinta Sgonia", role: "Anggota", division: "TBD", avatar: "CSS", description: "Anggota NCD" },
+  { name: "Nedri Febrianto", role: "Anggota", division: "TBD", avatar: "NF", description: "Anggota NCD" },
+  { name: "Sheva Putra Firdaus", role: "Anggota", division: "TBD", avatar: "SPF", description: "Anggota NCD" },
+];
+
+const divisions = [
+  { name: "People and Culture", icon: "👥", color: "bg-ncd-electric/20 text-ncd-electric", description: "Mengelola pengembangan anggota, onboarding, networking, dan pertumbuhan personal.", lead: { name: "Belum Dipilih", avatar: "TBD" } },
+  { name: "Competition and Strategy", icon: "🏆", color: "bg-success/20 text-success", description: "Mengelola Competition Radar, Competition Brief, Competition Day, dan Retrospective.", lead: { name: "Belum Dipilih", avatar: "TBD" } },
+  { name: "Project and Development", icon: "🔨", color: "bg-warning/20 text-warning", description: "Mengelola Project Lab, Project Clinic, Squad formation, dan Demo Day.", lead: { name: "Belum Dipilih", avatar: "TBD" } },
+];
 
 export default function PeoplePage() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterDivision, setFilterDivision] = useState("all");
+
+  const filteredMembers = members.filter((member) => {
+    const matchesSearch = member.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesDivision = filterDivision === "all" || member.division === filterDivision;
+    return matchesSearch && matchesDivision;
+  });
+
   return (
     <Container className="py-8 md:py-12">
       <Breadcrumb items={[
         { label: "Dashboard", href: "/app/dashboard" },
         { label: "People", href: "/app/people" }
       ]} />
-      <PageHeader title="People" description="NCD members, skills, interests, and learning targets." className="mt-8" />
-      <ModulePage title="People" description={emptyStates.people.description} icon={Users} empty={emptyStates.people} className="mt-8" />
+      <PageHeader
+        title="People"
+        description="NCD members directory with roles, divisions, and skills."
+        className="mb-8"
+        actions={
+          <div className="flex items-center gap-2">
+            <div className="relative hidden sm:block">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-text-muted" />
+              <input
+                type="text"
+                placeholder="Cari nama..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-64 pl-10 pr-4 py-2 rounded-md border border-border bg-ncd-elevated type-small text-text-primary placeholder:text-text-muted focus:border-ncd-electric focus:outline-none focus:ring-2 focus:ring-ncd-electric/20"
+              />
+            </div>
+            <select
+              value={filterDivision}
+              onChange={(e) => setFilterDivision(e.target.value)}
+              className="hidden sm:block px-3 py-2 rounded-md border border-border bg-ncd-elevated type-small text-text-primary focus:border-ncd-electric focus:outline-none focus:ring-2 focus:ring-ncd-electric/20"
+            >
+              <option value="all">Semua Divisi</option>
+              <option value="Leadership">Leadership</option>
+              <option value="TBD">Belum Bertugas</option>
+              <option value="People and Culture">People and Culture</option>
+              <option value="Competition and Strategy">Competition and Strategy</option>
+              <option value="Project and Development">Project and Development</option>
+            </select>
+          </div>
+        }
+      />
+
+      {/* Stats */}
+      <div className="mb-8 grid gap-4 md:grid-cols-4">
+        <Card className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-ncd-electric/20 text-ncd-electric">
+              <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+            </div>
+            <div>
+              <p className="type-caption text-text-muted">Total Members</p>
+              <p className="type-h3 font-medium text-text-primary">14</p>
+            </div>
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-ncd-electric/20 text-ncd-electric">
+              <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a4 4 0 11-6 0 4 4 0 016 0z" /></svg>
+            </div>
+            <div>
+              <p className="type-caption text-text-muted">Leadership</p>
+              <p className="type-h3 font-medium text-text-primary">2</p>
+            </div>
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/20 text-success">
+              <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14m10 0h2m-2 0h-2m-9 0H5a2 2 0 00-2 2v3m0 0v2a2 2 0 002 2h14a2 2 0 002-2v-3m0 0h.01M5 8h14M5 12h14m-2 4h6a2 2 0 002-2v-4h-2m-4 0a2 2 0 012-2h2" /></svg>
+            </div>
+            <div>
+              <p className="type-caption text-text-muted">Divisions</p>
+              <p className="type-h3 font-medium text-text-primary">3</p>
+            </div>
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-warning/20 text-warning">
+              <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+            </div>
+            <div>
+              <p className="type-caption text-text-muted">Support Systems</p>
+              <p className="type-h3 font-medium text-text-primary">4</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Leadership */}
+      <section className="mb-10">
+        <h2 className="type-h3 font-medium mb-6">Leadership Periode I</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          {[
+            { name: "Mirza Danisywar Noor Wahyu", role: "Ketua Periode I", division: "Leadership", avatar: "MDNW", description: "Menentukan arah strategis dan keputusan organisasi" },
+            { name: "Muhamad Fauzan Al Farikhi", role: "Wakil Ketua Periode I", division: "Leadership", avatar: "MFAF", description: "Koordinasi eksekusi, monitoring, dan eksekusi program" },
+          ].map((person) => (
+            <Card key={person.name} className="p-6">
+              <div className="flex items-start gap-4">
+                <div className="h-16 w-16 rounded-full bg-ncd-electric/20 flex items-center justify-center text-ncd-electric type-h3 font-medium">
+                  {person.avatar}
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="type-h4 font-medium">{person.name}</h3>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-ncd-electric/30 bg-ncd-electric/10 text-ncd-electric type-caption font-medium">{person.role}</span>
+                  </div>
+                  <p className="type-body text-text-secondary mb-2">{person.description}</p>
+                  <span className="inline-flex items-center gap-1.5 text-sm text-text-muted">
+                    <svg className="size-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    <span className="text-text-muted">Leadership</span>
+                  </span>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* Divisions */}
+      <section className="mb-10">
+        <h2 className="type-h3 font-medium mb-6">Divisi</h2>
+        <div className="grid gap-4 md:grid-cols-3">
+          {divisions.map((division) => (
+            <Card key={division.name} className="p-6 h-full">
+              <div className="flex items-center gap-3 mb-4">
+                <div className={`flex h-10 w-10 items-center justify-center rounded-md ${division.color}`}>
+                  <span className="size-5">{division.icon}</span>
+                </div>
+                <div>
+                  <h3 className="type-h4 font-medium">{division.name}</h3>
+                  <p className="type-caption text-text-muted">Ketua: {division.lead.name}</p>
+                </div>
+              </div>
+              <p className="type-body text-text-secondary mb-4">{division.description}</p>
+              <div className="pt-4 border-t border-border">
+                <p className="type-caption text-text-muted">Ketua Divisi: {division.lead.name}</p>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* Members Directory */}
+      <section>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+          <h2 className="type-h3 font-medium">Anggota ({filteredMembers.length})</h2>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input
+              type="text"
+              placeholder="Cari nama..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full sm:w-64 px-3 py-2 rounded-md border border-border bg-ncd-elevated type-small text-text-primary placeholder:text-text-muted focus:border-ncd-electric focus:outline-none focus:ring-2 focus:ring-ncd-electric/20"
+            />
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {filteredMembers.map((member) => (
+            <Card key={member.name} className="p-4 hover:border-ncd-electric/50 hover:bg-ncd-hover transition-colors">
+              <div className="flex items-start gap-3">
+                <div className="h-12 w-12 rounded-full bg-ncd-electric/20 flex items-center justify-center text-ncd-electric type-h4 font-medium">
+                  {member.avatar}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="type-h4 font-medium truncate">{member.name}</h3>
+                  <div className="flex flex-wrap gap-1.5 mt-1">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-border bg-ncd-surface/50 type-caption text-text-secondary">{member.role}</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-border bg-ncd-surface/50 type-caption text-text-secondary">{member.division}</span>
+                  </div>
+                  <p className="type-caption text-text-muted mt-1 truncate">{member.description}</p>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        {filteredMembers.length === 0 && (
+          <div className="text-center py-12">
+            <p className="type-body text-text-secondary">Tidak ada anggota yang cocok dengan pencarian.</p>
+          </div>
+        )}
+      </section>
     </Container>
   );
 }

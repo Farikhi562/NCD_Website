@@ -1,15 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LogOut, User, Menu, X } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import { NavLink } from "./NavLink";
 import { IconButton } from "@/components/ui/IconButton";
 import { Sheet } from "@/components/ui/Sheet";
 import { useAuth } from "@/lib/auth";
 import { publicPrimaryNav, publicSecondaryNav } from "@/config/navigation";
-import { cn } from "@/lib/utils";
 
 /**
  * Public header (design.md §14). Text wordmark only: no NEXA logo, no invented NCD logo (D-01, D-02).
@@ -17,7 +15,6 @@ import { cn } from "@/lib/utils";
  */
 export function SiteHeader() {
   const { user, loading, signOut } = useAuth();
-  const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleSignOut = async (e: React.MouseEvent) => {

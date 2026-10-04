@@ -1,6 +1,6 @@
 "use client";
 
-import { User, Mail, Award, Building2, Calendar, Settings, LogOut } from "lucide-react";
+import { Mail, Award, Calendar, Settings, LogOut } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -11,7 +11,7 @@ import { useAuth } from "@/lib/auth";
 import { formatDate } from "@/lib/utils";
 
 export default function ProfilePage() {
-  const { user, profile, loading, signOut, refreshProfile } = useAuth();
+  const { user, profile, loading, signOut } = useAuth();
 
   if (loading) {
     return (

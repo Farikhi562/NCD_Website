@@ -1,7 +1,7 @@
 // src/lib/auth.ts
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import type { ReactNode } from "react";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const supabase = createClient();
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = useCallback(async (userId: string) => {
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
@@ -40,20 +40,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return null;
     }
     return data as Profile;
-  };
+  }, [supabase]);
 
-  const refreshProfile = async () => {
+  const refreshProfile = useCallback(async () => {
     if (user) {
       const profileData = await fetchProfile(user.id);
       setProfile(profileData);
     }
-  };
+  }, [user, fetchProfile]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user.id).then((profileData) => {
+        fetchProfile(session.user.id).then((profileData: Profile | null) => {
           setProfile(profileData);
           setLoading(false);
         });
@@ -76,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [fetchProfile, supabase.auth]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
