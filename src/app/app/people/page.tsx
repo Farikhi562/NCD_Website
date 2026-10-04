@@ -1,6 +1,7 @@
 "use client";
 
 import { Search, Users } from "lucide-react";
+import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -164,7 +165,7 @@ export default function PeoplePage() {
               <div className="flex items-start gap-4">
                 <div className="h-16 w-16 rounded-full bg-ncd-electric/20 flex items-center justify-center text-ncd-electric type-h3 font-medium">
                   {person.avatar_url ? (
-                    <img src={person.avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
+                    <Image src={person.avatar_url} alt={person.full_name || ""} fill className="object-cover" />
                   ) : (
                     person.full_name?.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("") || "?"
                   )}
@@ -241,7 +242,7 @@ export default function PeoplePage() {
               <div className="flex items-start gap-3">
                 <div className="h-12 w-12 rounded-full bg-ncd-electric/20 flex items-center justify-center text-ncd-electric type-h4 font-medium">
                   {member.avatar_url ? (
-                    <img src={member.avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
+                    <Image src={member.avatar_url} alt={member.full_name || ""} fill className="object-cover" />
                   ) : (
                     member.full_name?.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("") || "?"
                   )}
