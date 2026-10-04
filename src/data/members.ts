@@ -1,6 +1,6 @@
 // src/data/members.ts
 // Canonical member data for NCD — single source of truth
-// Matches the official NCD member list (24 members, 3 teams, 3 divisions, 2 leadership)
+// Matches the official NCD member list (20 members, 3 teams, 3 divisions, 2 leadership)
 // avatar_url only set for verified existing files in public/images/
 
 export interface Member {
@@ -155,7 +155,7 @@ export const members: Member[] = [
     email: "sheva.putra@ncd.id",
   },
 
-  // Additional members (NOT in UGP-GBIC competition teams)
+  // Additional 5 members (NOT in UGP-GBIC competition teams)
   {
     name: "Muhammad Ferdynand Syah",
     npm: "NEW001",
@@ -200,44 +200,6 @@ export const members: Member[] = [
     role: "Member",
     image: null,
     email: "waldan.zubary@ncd.id",
-  },
-  // New member
-  {
-    name: "Muhammad Fawwaz Rayyan Khalish",
-    npm: "NEW006",
-    team: "Not Assigned",
-    division: "Not Assigned",
-    role: "Member",
-    image: "/images/muhammad-fawwaz-rayyan-khalish.png",
-    email: "muhammad.fawwaz@ncd.id",
-  },
-  // New members (added 2026-10-04)
-  {
-    name: "Yusuf Maulana Wahyudi",
-    npm: "NEW007",
-    team: "Not Assigned",
-    division: "Not Assigned",
-    role: "Member",
-    image: null,
-    email: "yusuf.maulana@ncd.id",
-  },
-  {
-    name: "Rangga Dwi Prasetyo",
-    npm: "NEW008",
-    team: "Not Assigned",
-    division: "Not Assigned",
-    role: "Member",
-    image: null,
-    email: "rangga.dwi@ncd.id",
-  },
-  {
-    name: "Muhammad Tsaqib Adha",
-    npm: "NEW009",
-    team: "Not Assigned",
-    division: "Not Assigned",
-    role: "Member",
-    image: null,
-    email: "muhammad.tsaqib@ncd.id",
   },
 ];
 

@@ -16,6 +16,7 @@ export const publicPrimaryNav: NavItem[] = [
   { label: "Knowledge", href: "/knowledge" },
   { label: "Activities", href: "/activities" },
   { label: "News", href: "/news" },
+  { label: "NEXA Tech Labs", href: "/nexa" },
 ];
 
 /** Logged-out only. Signed-in users never see Login / Register. */
@@ -55,6 +56,7 @@ export const footerNav: NavGroup[] = [
       { label: "Knowledge", href: "/knowledge" },
       { label: "Activities", href: "/activities" },
       { label: "News", href: "/news" },
+      { label: "NEXA Tech Labs", href: "/nexa" },
     ],
   },
   {

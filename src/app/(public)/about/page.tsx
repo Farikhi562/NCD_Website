@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Users, Award, Building2, Target, Heart, Lightbulb, Users as UsersIcon } from "lucide-react";
+import { Users, Award, Building2, Target, Heart, Lightbulb, Users as UsersIcon, ArrowUpRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -193,6 +193,30 @@ export default async function Page() {
             </Card>
           ))}
         </div>
+      </section>
+
+      {/* NEXA Tech Labs Relationship */}
+      <section className="mb-12">
+        <Card className="p-6 border-border-strong bg-ncd-surface/50">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-ncd-electric/20 text-ncd-electric">
+              <Building2 className="size-6" />
+            </div>
+            <div className="flex-1">
+              <h3 className="type-h4 font-medium mb-2">Built under NEXA Tech Labs</h3>
+              <p className="type-body text-text-secondary mb-4">
+                NCD is a community under NEXA Tech Labs, bringing together students and young builders to learn, collaborate, compete, and build real systems.
+              </p>
+              <a
+                href="/nexa"
+                className="inline-flex items-center gap-1.5 type-small font-medium text-ncd-electric hover:underline"
+              >
+                Explore NEXA Tech Labs
+                <ArrowUpRight className="size-3" />
+              </a>
+            </div>
+          </div>
+        </Card>
       </section>
 
       {/* Organization Structure Note */}
