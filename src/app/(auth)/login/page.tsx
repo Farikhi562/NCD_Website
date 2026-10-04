@@ -23,7 +23,12 @@ const features = [
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/app/dashboard";
+  // Same-site paths only (blocks ?redirect=https://evil.example and //evil.example)
+  const requestedRedirect = searchParams.get("redirect");
+  const redirectTo =
+    requestedRedirect && requestedRedirect.startsWith("/") && !requestedRedirect.startsWith("//")
+      ? requestedRedirect
+      : "/app/dashboard";
   const { status, user } = useAuth();
 
   const [email, setEmail] = useState("");

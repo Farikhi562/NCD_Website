@@ -14,6 +14,8 @@ interface AuthContextType {
   profile: Profile | null;
   status: AuthStatus;
   loading: boolean; // Deprecated: use status instead
+  /** True from the moment Logout is pressed until the page navigates away. Route guards must not redirect during this. */
+  isSigningOut: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   isAdmin: boolean;
@@ -28,6 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [status, setStatus] = useState<AuthStatus>("checking");
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   // Use useMemo to create supabase client only once
   const supabase = useMemo(() => createClient(), []);
@@ -114,10 +117,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [fetchProfile, supabase]);
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    // State will be updated via onAuthStateChange
-  };
+  const signOut = useCallback(async () => {
+    setIsSigningOut(true);
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Sign out error:", error);
+    }
+    // Clear local auth state, then do a full navigation to the public site.
+    // A hard navigation drops every cached workspace component and re-runs middleware
+    // with the cleared cookies, so the navbar is guaranteed to be in its logged-out state.
+    setUser(null);
+    setProfile(null);
+    setStatus("unauthenticated");
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- intentional hard navigation (see comment above)
+    window.location.assign("/");
+  }, [supabase]);
 
   const role = profile?.role ?? "member";
   const needsOnboarding = profile ? !profile.onboarding_completed : true;
@@ -132,6 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         profile,
         status,
         loading,
+        isSigningOut,
         signOut,
         refreshProfile,
         isAdmin: role === "admin",

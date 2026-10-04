@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Member } from "@/lib/database.types";
+import { MEMBER_COLUMNS } from "@/config/members";
 
 export function useMembers() {
   const [members, setMembers] = useState<Member[]>([]);
@@ -16,7 +17,7 @@ export function useMembers() {
       try {
         const { data, error } = await supabase
           .from("members")
-          .select("*")
+          .select(MEMBER_COLUMNS)
           .eq("is_public", true)
           .order("team", { ascending: true })
           .order("full_name", { ascending: true });
@@ -24,7 +25,7 @@ export function useMembers() {
         if (error) {
           setError(error.message);
         } else {
-          setMembers((data as Member[]) || []);
+          setMembers((data as unknown as Member[]) || []);
         }
       } catch {
         setError("Failed to load members");
@@ -51,14 +52,14 @@ export function useLeadership() {
       try {
         const { data, error } = await supabase
           .from("members")
-          .select("*")
-          .in("role", ["Chairperson — Period I", "Vice Chairperson — Period I"])
-          .order("role", { ascending: false });
+          .select(MEMBER_COLUMNS)
+          .in("org_role", ["Chairperson — Period I", "Vice Chairperson — Period I"])
+          .order("org_role", { ascending: false });
 
         if (error) {
           setError(error.message);
         } else {
-          setLeadership((data as Member[]) || []);
+          setLeadership((data as unknown as Member[]) || []);
         }
       } catch {
         setError("Failed to load leadership");
@@ -86,7 +87,7 @@ export function useDivisionLeads() {
         const { data, error } = await supabase
           .from("members")
           .select("division, full_name")
-          .eq("role", "Division Lead");
+          .eq("org_role", "Division Lead");
 
         if (error) {
           setError(error.message);

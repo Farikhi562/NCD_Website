@@ -1,43 +1,26 @@
 import type { Metadata } from "next";
-import { CalendarDays, MapPin, Users, Map } from "lucide-react";
+import { CalendarDays, MapPin, Map, Users } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Badge } from "@/components/ui/Badge";
 import { formatDate } from "@/lib/utils";
+import { activities, splitActivities } from "@/config/activities";
 
 export const metadata: Metadata = {
   title: "Activities",
-  description: "A dated record of what NCD did and what came out of it.",
+  description: "NCD activities record.",
   alternates: { canonical: "/activities" },
 };
 
-const activities = [
-  {
-    id: "1",
-    title: "Offline NCD Meeting: Organization Structure & Period I Work Program",
-    date: "2026-10-12",
-    time: "13:30 – finish",
-    location: "Bagi Kopi Margonda, Depok",
-    locationUrl: "https://share.google/tFM7yQGYHS4HqlASG",
-    category: "Organization",
-    description: "Offline NCD meeting discussing organization structure, Period I leadership, work program, vision, and mission.",
-    participants: "Period I Leadership & Division Lead Candidates",
-    documentation: "Internal archive",
-    outcome: "Organization structure aligned; Period I leadership confirmed; work program, vision, and mission presented.",
-    agenda: [
-      "Opening and Welcome by Chairperson, Mirza Danisywar Noor Wahyu",
-      "Organization Structure discussion for the three permanent NCD divisions",
-      "Period I Leadership alignment and roles",
-      "Work Program Presentation by Vice Chairperson, Muhamad Fauzan Al Farikhi",
-      "Vision & Mission Presentation by Chairperson",
-      "Discussion and Alignment",
-    ],
-  },
-];
+// Dates are compared at request time; keep this page dynamic so "upcoming" stays correct.
+export const dynamic = "force-dynamic";
 
-export default function Page() {
+export default function ActivitiesPage() {
+  const { upcoming, past } = splitActivities();
+  const ordered = [...upcoming.map((a) => ({ a, upcoming: true })), ...past.map((a) => ({ a, upcoming: false }))];
+
   return (
     <Container className="py-8 md:py-12">
       <Breadcrumb items={[
@@ -46,80 +29,64 @@ export default function Page() {
       ]} />
       <PageHeader
         title="Activities"
-        description="A dated record of what NCD did and what came out of it."
+        description="What NCD is doing: sessions, meetings and gatherings."
         className="mb-8"
       />
 
       <div className="space-y-6">
-        {activities.map((activity) => (
+        {ordered.map(({ a: activity, upcoming: isUpcoming }) => (
           <article key={activity.id}>
-            <Card className="p-6 hover:border-ncd-electric/50 transition-colors">
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
+            <Card className="p-6">
+              <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div className="flex items-center gap-2">
                   <Badge tone="info">{activity.category}</Badge>
-                  <time className="type-caption text-text-muted">{formatDate(activity.date)}</time>
+                  <Badge tone={isUpcoming ? "warning" : "archived"}>{isUpcoming ? "Upcoming" : "Past"}</Badge>
+                  <time className="type-caption text-text-muted" dateTime={activity.date}>{formatDate(activity.date)}</time>
                 </div>
-                <div className="flex items-center gap-4 text-text-muted type-caption">
-                  <span className="flex items-center gap-1">
-                    <MapPin className="size-3" />
-                    {activity.location}
+                {activity.audience && (
+                  <span className="type-caption flex items-center gap-1 text-text-muted">
+                    <Users className="size-3" aria-hidden />
+                    {activity.audience}
                   </span>
-                  <span className="flex items-center gap-1">
-                    <Users className="size-3" />
-                    {activity.participants}
-                  </span>
-                </div>
+                )}
               </div>
-              <h2 className="type-h4 font-medium mb-2">{activity.title}</h2>
-              <p className="type-body text-text-secondary mb-4">{activity.description}</p>
+              <h2 className="type-h4 mb-2 font-medium">{activity.title}</h2>
+              <p className="type-body mb-4 text-text-secondary">{activity.description}</p>
 
-              {/* Time and Location */}
-              <div className="grid gap-4 md:grid-cols-2 mb-4">
-                <div className="flex items-center gap-3 p-4 rounded-lg bg-ncd-surface/50 border border-border">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-ncd-electric/20 text-ncd-electric shrink-0">
-                    <CalendarDays className="size-5" />
+              <dl className="mb-4 grid gap-4 md:grid-cols-2">
+                <div className="flex items-center gap-3 rounded-lg border border-border bg-ncd-surface/50 p-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-ncd-electric/20 text-ncd-electric">
+                    <CalendarDays className="size-5" aria-hidden />
                   </div>
                   <div>
                     <dt className="type-caption text-text-muted">Time</dt>
                     <dd className="type-body font-medium">{activity.time}</dd>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-4 rounded-lg bg-ncd-surface/50 border border-border">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-ncd-electric/20 text-ncd-electric shrink-0">
-                    <MapPin className="size-5" />
+                <div className="flex items-center gap-3 rounded-lg border border-border bg-ncd-surface/50 p-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-ncd-electric/20 text-ncd-electric">
+                    <MapPin className="size-5" aria-hidden />
                   </div>
                   <div>
                     <dt className="type-caption text-text-muted">Location</dt>
                     <dd className="type-body font-medium">{activity.location}</dd>
-                    <dd className="type-caption text-text-muted mt-1">
-                      <a href={activity.locationUrl} target="_blank" rel="noopener noreferrer" className="text-ncd-electric hover:underline flex items-center gap-1">
-                        <Map className="size-3" />
-                        Open in Maps
-                      </a>
-                    </dd>
+                    {activity.locationUrl && (
+                      <dd className="type-caption mt-1">
+                        <a href={activity.locationUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-ncd-electric hover:underline">
+                          <Map className="size-3" aria-hidden />
+                          Open in Maps
+                        </a>
+                      </dd>
+                    )}
                   </div>
                 </div>
-              </div>
+              </dl>
 
-              {/* Agenda */}
-              <div className="mb-4">
-                <h3 className="type-h4 font-medium mb-3">Agenda</h3>
-                <ol className="list-decimal list-inside space-y-2 type-body text-text-secondary">
-                  {activity.agenda.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
+              <div>
+                <h3 className="type-h4 mb-3 font-medium">Agenda</h3>
+                <ol className="type-body list-inside list-decimal space-y-2 text-text-secondary">
+                  {activity.agenda.map((item) => <li key={item}>{item}</li>)}
                 </ol>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-3 text-sm pt-4 border-t border-border">
-                <div>
-                  <dt className="type-caption text-text-muted mb-1">Documentation</dt>
-                  <dd className="type-body text-text-secondary">{activity.documentation}</dd>
-                </div>
-                <div>
-                  <dt className="type-caption text-text-muted mb-1">Outcome</dt>
-                  <dd className="type-body text-text-secondary">{activity.outcome}</dd>
-                </div>
               </div>
             </Card>
           </article>

@@ -1,0 +1,4 @@
+Hapus file ini dari repo (sudah nggak dipakai):
+src/components/navigation/AuthHeader.tsx   (diganti WorkspaceShell.tsx)
+src/components/navigation/MobileNav.tsx    (nggak ada yang import)
+src/data/members.ts                        (data member statis duplikat; sekarang semua dari Supabase)

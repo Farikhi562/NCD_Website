@@ -1,136 +1,103 @@
 import type { Metadata } from "next";
-import { Calendar, MapPin, Users, Map } from "lucide-react";
-import { Container } from "@/components/ui/Container";
-import { Card } from "@/components/ui/Card";
-import { PageHeader } from "@/components/ui/PageHeader";
-import { Breadcrumb } from "@/components/ui/Breadcrumb";
+import { Calendar, Clock, ListChecks, Map, MapPin, Users } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
+import { Card } from "@/components/ui/Card";
+import { Container } from "@/components/ui/Container";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { formatDate } from "@/lib/utils";
-import { emptyStates } from "@/config/content";
+import { splitActivities, type NcdActivity } from "@/config/activities";
 
 export const metadata: Metadata = {
   title: "Activities",
-  description: "NCD activities record.",
+  description: "Member activity workspace.",
 };
 
-const activities = [
-  {
-    id: "1",
-    title: "Offline NCD Meeting: Organization Structure & Period I Work Program",
-    date: "2026-10-12",
-    time: "13:30 – finish",
-    location: "Bagi Kopi Margonda, Depok",
-    locationUrl: "https://share.google/tFM7yQGYHS4HqlASG",
-    category: "Organization",
-    description: "Offline NCD meeting discussing organization structure, Period I leadership, work program, vision, and mission.",
-    participants: "Period I Leadership & Division Lead Candidates",
-    documentation: "Internal archive",
-    outcome: "Organization structure aligned; Period I leadership confirmed; work program, vision, and mission presented.",
-    agenda: [
-      "Opening and Welcome by Chairperson, Mirza Danisywar Noor Wahyu",
-      "Organization Structure discussion for the three permanent NCD divisions",
-      "Period I Leadership alignment and roles",
-      "Work Program Presentation by Vice Chairperson, Muhamad Fauzan Al Farikhi",
-      "Vision & Mission Presentation by Chairperson",
-      "Discussion and Alignment",
-    ],
-  },
-];
+export const dynamic = "force-dynamic";
 
-export default function ActivitiesPage() {
+function ActivityCard({ activity, upcoming }: { activity: NcdActivity; upcoming: boolean }) {
   return (
-    <Container className="py-8 md:py-12">
-      <Breadcrumb items={[
-        { label: "Dashboard", href: "/app/dashboard" },
-        { label: "Activities", href: "/app/activities" }
-      ]} />
-      <PageHeader title="Activities" description="A dated record of what NCD did and what came out of it." className="mt-8" />
-
-      <div className="mt-8 space-y-6">
-        {activities.map((activity) => (
-          <article key={activity.id}>
-            <Card className="p-6 hover:border-ncd-electric/50 transition-colors">
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
-                <div className="flex items-center gap-2">
-                  <Badge tone="info">{activity.category}</Badge>
-                  <time className="type-caption text-text-muted">{formatDate(activity.date)}</time>
-                </div>
-                <div className="flex items-center gap-4 text-text-muted type-caption">
-                  <span className="flex items-center gap-1">
-                    <MapPin className="size-3" />
-                    {activity.location}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Users className="size-3" />
-                    {activity.participants}
-                  </span>
-                </div>
-              </div>
-              <h2 className="type-h4 font-medium mb-2">{activity.title}</h2>
-              <p className="type-body text-text-secondary mb-4">{activity.description}</p>
-
-              {/* Time and Location */}
-              <div className="grid gap-4 md:grid-cols-2 mb-4">
-                <div className="flex items-center gap-3 p-4 rounded-lg bg-ncd-surface/50 border border-border">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-ncd-electric/20 text-ncd-electric shrink-0">
-                    <Calendar className="size-5" />
-                  </div>
-                  <div>
-                    <dt className="type-caption text-text-muted">Time</dt>
-                    <dd className="type-body font-medium">{activity.time}</dd>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-4 rounded-lg bg-ncd-surface/50 border border-border">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-ncd-electric/20 text-ncd-electric shrink-0">
-                    <MapPin className="size-5" />
-                  </div>
-                  <div>
-                    <dt className="type-caption text-text-muted">Location</dt>
-                    <dd className="type-body font-medium">{activity.location}</dd>
-                    <dd className="type-caption text-text-muted mt-1">
-                      <a href={activity.locationUrl} target="_blank" rel="noopener noreferrer" className="text-ncd-electric hover:underline flex items-center gap-1">
-                        <Map className="size-3" />
-                        Open in Maps
-                      </a>
-                    </dd>
-                  </div>
-                </div>
-              </div>
-
-              {/* Agenda */}
-              <div className="mb-4">
-                <h3 className="type-h4 font-medium mb-3">Agenda</h3>
-                <ol className="list-decimal list-inside space-y-2 type-body text-text-secondary">
-                  {activity.agenda.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ol>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-3 text-sm pt-4 border-t border-border">
-                <div>
-                  <dt className="type-caption text-text-muted mb-1">Documentation</dt>
-                  <dd className="type-body text-text-secondary">{activity.documentation}</dd>
-                </div>
-                <div>
-                  <dt className="type-caption text-text-muted mb-1">Outcome</dt>
-                  <dd className="type-body text-text-secondary">{activity.outcome}</dd>
-                </div>
-              </div>
-            </Card>
-          </article>
-        ))}
+    <Card>
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge tone="info">{activity.category}</Badge>
+        <Badge tone={upcoming ? "warning" : "archived"}>{upcoming ? "Upcoming" : "Past"}</Badge>
       </div>
+      <h3 className="type-h4 mt-3 font-medium">{activity.title}</h3>
+      <p className="type-small mt-2 max-w-[65ch] text-text-secondary">{activity.description}</p>
 
-      {activities.length === 0 && (
-        <div className="mt-8">
-          <div className="rounded-lg border border-dashed border-border-strong bg-ncd-dark p-8 md:p-12">
-            <Calendar className="mb-4 size-6 text-text-muted" aria-hidden />
-            <p className="type-h4 text-text-primary">{emptyStates.activities.title}</p>
-            <p className="type-body mt-2 max-w-[60ch] text-text-secondary">{emptyStates.activities.description}</p>
+      <dl className="type-small mt-5 grid gap-3 sm:grid-cols-3">
+        <div className="flex items-start gap-2">
+          <Calendar className="mt-0.5 size-4 text-text-muted" aria-hidden />
+          <div><dt className="type-caption text-text-muted">Date</dt><dd className="font-medium">{formatDate(activity.date)}</dd></div>
+        </div>
+        <div className="flex items-start gap-2">
+          <Clock className="mt-0.5 size-4 text-text-muted" aria-hidden />
+          <div><dt className="type-caption text-text-muted">Time</dt><dd className="font-medium">{activity.time}</dd></div>
+        </div>
+        <div className="flex items-start gap-2">
+          <MapPin className="mt-0.5 size-4 text-text-muted" aria-hidden />
+          <div>
+            <dt className="type-caption text-text-muted">Location</dt>
+            <dd className="font-medium">{activity.location}</dd>
+            {activity.locationUrl && (
+              <dd className="mt-1">
+                <a href={activity.locationUrl} target="_blank" rel="noopener noreferrer" className="type-caption inline-flex items-center gap-1 text-ncd-electric hover:underline">
+                  <Map className="size-3" aria-hidden />Open in Maps
+                </a>
+              </dd>
+            )}
           </div>
         </div>
-      )}
+      </dl>
+
+      <div className="mt-6 grid gap-6 border-t border-border pt-5 md:grid-cols-2">
+        <div>
+          <h4 className="type-small flex items-center gap-2 font-medium"><ListChecks className="size-4 text-text-muted" aria-hidden />Agenda</h4>
+          <ol className="type-small mt-3 list-inside list-decimal space-y-1.5 text-text-secondary">
+            {activity.agenda.map((item) => <li key={item}>{item}</li>)}
+          </ol>
+        </div>
+        <div className="space-y-4">
+          {activity.audience && (
+            <div>
+              <h4 className="type-small flex items-center gap-2 font-medium"><Users className="size-4 text-text-muted" aria-hidden />Who it&apos;s for</h4>
+              <p className="type-small mt-2 text-text-secondary">{activity.audience}</p>
+            </div>
+          )}
+          <div>
+            <h4 className="type-small font-medium">Documentation</h4>
+            <p className="type-small mt-2 text-text-muted">{upcoming ? "Added after the activity takes place." : "None recorded yet."}</p>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+export default function WorkspaceActivitiesPage() {
+  const { upcoming, past } = splitActivities();
+
+  return (
+    <Container className="py-8 md:py-12">
+      <PageHeader title="Activities" description="Your member activity workspace: what's coming up, the agenda, and what's behind us." />
+
+      <section aria-labelledby="upcoming-heading" className="mt-8">
+        <h2 id="upcoming-heading" className="type-h4 mb-4 font-medium">Upcoming</h2>
+        {upcoming.length === 0 ? (
+          <EmptyState icon={Calendar} title="Nothing scheduled" description="Upcoming NCD activities will appear here." />
+        ) : (
+          <div className="space-y-4">{upcoming.map((a) => <ActivityCard key={a.id} activity={a} upcoming />)}</div>
+        )}
+      </section>
+
+      <section aria-labelledby="past-heading" className="mt-10">
+        <h2 id="past-heading" className="type-h4 mb-4 font-medium">Past</h2>
+        {past.length === 0 ? (
+          <EmptyState icon={Calendar} title="No past activities yet" description="Activities that have taken place will be kept here." />
+        ) : (
+          <div className="space-y-4">{past.map((a) => <ActivityCard key={a.id} activity={a} upcoming={false} />)}</div>
+        )}
+      </section>
     </Container>
   );
 }

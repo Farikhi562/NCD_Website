@@ -1,20 +1,12 @@
 import type { Metadata } from "next";
-import { AuthHeader } from "@/components/navigation/AuthHeader";
-import { SiteFooter } from "@/components/navigation/SiteFooter";
+import { WorkspaceShell } from "@/components/navigation/WorkspaceShell";
 
 export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "NCD App — your dashboard.",
+  title: { default: "Workspace", template: "%s · NCD Workspace" },
+  description: "NCD Workspace: where members work in NCD.",
+  robots: { index: false, follow: false },
 };
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      <AuthHeader />
-      <main id="main" className="flex-1">
-        {children}
-      </main>
-      <SiteFooter />
-    </>
-  );
+  return <WorkspaceShell>{children}</WorkspaceShell>;
 }

@@ -6,7 +6,8 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
-import { getLeadership, getDivisionLeads } from "@/lib/people";
+import { getLeadership, getDivisionLeads, getMembers } from "@/lib/people";
+import { isCompetitionTeam } from "@/config/ugp";
 
 export const metadata: Metadata = {
   title: "About",
@@ -30,10 +31,12 @@ const supportSystems = [
 ];
 
 export default async function Page() {
-  const [leadership, divisionLeads] = await Promise.all([
+  const [leadership, divisionLeads, allMembers] = await Promise.all([
     getLeadership(),
     getDivisionLeads(),
+    getMembers(),
   ]);
+  const ugpCount = allMembers.filter((m) => isCompetitionTeam(m.team)).length;
 
   const staticDivisions = [
     {
@@ -201,7 +204,7 @@ export default async function Page() {
             <p><strong>Divisions (3):</strong> People & Culture · Competition & Strategy · Project & Development</p>
             <p><strong>Support Systems (4):</strong> NCD Kas · NCD Website · Documentation · Knowledge Base</p>
             <p><strong>Competition Squads:</strong> Temporary, formed per competition/project</p>
-            <p><strong>Total Members:</strong> 20 (15 UGP-GBIC participants + 5 non-competition members)</p>
+            <p><strong>Total Members:</strong> {allMembers.length} ({ugpCount} UGP-GBIC participants + {allMembers.length - ugpCount} non-competition members)</p>
           </div>
         </Card>
       </section>

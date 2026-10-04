@@ -1,110 +1,84 @@
-import type { Metadata } from "next";
-import { Trophy, Box, Wifi, Hand } from "lucide-react";
-import { Container } from "@/components/ui/Container";
-import { Card } from "@/components/ui/Card";
-import { PageHeader } from "@/components/ui/PageHeader";
-import { Breadcrumb } from "@/components/ui/Breadcrumb";
+"use client";
+
+import { Box, Hand, Trophy, Wifi } from "lucide-react";
+import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
+import { Card } from "@/components/ui/Card";
+import { Container } from "@/components/ui/Container";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { useAuth } from "@/lib/auth";
+import { useMembers } from "@/hooks/useMembers";
+import { UGP_COMPETITION, ugpTeams } from "@/config/ugp";
 
-export const metadata: Metadata = {
-  title: "Competitions",
-  description: "NCD Competition Radar and Briefs.",
-};
+const teamIcons = { "Team 1": Box, "Team 2": Wifi, "Team 3": Hand } as const;
 
-const competitions = [
-  {
-    id: "ugp-gbic",
-    name: "UGP-GBIC",
-    description: "Universitas Gunadarma Programming - Global Business Innovation Challenge",
-    category: "Technology / Digital Business",
-    status: "Active",
-    teams: [
-      {
-        name: "Team 1",
-        product: "SCALE",
-        field: "Technology / Digital Business",
-        icon: Box,
-        members: ["Dian Aulia Febrianti", "Muhamad Fauzan Al Farikhi", "Mirza Danisywar Noor Wahyu", "Syawalludin Fitroh Rahman", "Annisa Saskia"],
-      },
-      {
-        name: "Team 2",
-        product: "NFC WiFi",
-        field: "Technology / Digital Business",
-        icon: Wifi,
-        members: ["Mochamad Triandra Andantyo", "Ghazali Syaqih Husein", "Putri Aura Wening", "Muhammad Iqbal Fajri", "Chantika Shinta Sonia"],
-      },
-      {
-        name: "Team 3",
-        product: "Sarung Tangan dari Tape Singkong",
-        field: "Manufacturing / Craft",
-        icon: Hand,
-        members: ["Deryl Jonathan Yofan", "Rayyan Fathan Addani", "Nedri Febrianto", "Sri Gunarti Wijiastuti", "Sheva Putra Firdaus"],
-      },
-    ],
-  },
-];
+export default function WorkspaceCompetitionsPage() {
+  const { profile } = useAuth();
+  const { members, loading, error } = useMembers();
 
-export default function CompetitionsPage() {
   return (
     <Container className="py-8 md:py-12">
-      <Breadcrumb items={[
-        { label: "Dashboard", href: "/app/dashboard" },
-        { label: "Competitions", href: "/app/competitions" }
-      ]} />
-      <PageHeader title="Competitions" description="Competition Radar and Competition Briefs, not a wall of posters." className="mt-8" />
+      <PageHeader title="Competitions" description="Your competition workspace: the teams, their products and who is on them." />
 
-      {competitions.map((competition) => (
-        <section key={competition.id} className="mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="type-h2 font-medium">{competition.name}</h2>
-              <p className="type-body text-text-secondary mt-1">{competition.description}</p>
-            </div>
-            <Badge tone="success">{competition.status}</Badge>
+      <section aria-labelledby="ugp-heading" className="mt-8">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 id="ugp-heading" className="type-h3 font-medium">{UGP_COMPETITION.name}</h2>
+            <p className="type-small mt-1 text-text-secondary">{UGP_COMPETITION.fullName}</p>
           </div>
+          <Badge tone="success">Active</Badge>
+        </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            {competition.teams.map((team) => (
-              <Card key={team.name} className="p-6 h-full">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-ncd-electric/20 text-ncd-electric">
-                    <team.icon className="size-6" />
+        {error ? (
+          <EmptyState icon={Trophy} title="Couldn't load teams" description="Something went wrong while loading team rosters. Refresh to try again." />
+        ) : (
+          <div className="grid gap-4 lg:grid-cols-3">
+            {ugpTeams.map((team) => {
+              const Icon = teamIcons[team.name];
+              const roster = members.filter((m) => m.team === team.name);
+              const mine = profile?.team === team.name;
+              return (
+                <Card key={team.name} className={mine ? "border-ncd-electric/60" : undefined}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-10 items-center justify-center rounded-lg bg-ncd-electric/20 text-ncd-electric">
+                        <Icon className="size-5" aria-hidden />
+                      </div>
+                      <div>
+                        <h3 className="type-h4 font-medium">{team.name}</h3>
+                        <p className="type-caption text-text-muted">{team.field}</p>
+                      </div>
+                    </div>
+                    {mine && <Badge tone="info">Your team</Badge>}
                   </div>
-                  <div>
-                    <h3 className="type-h4 font-medium">{team.name}</h3>
-                    <p className="type-caption text-text-muted">{team.field}</p>
+
+                  <div className="mt-4 rounded-lg border border-border bg-ncd-surface/50 p-4">
+                    <p className="type-caption text-text-muted">Product / Idea</p>
+                    <p className="type-body mt-1 font-medium">{team.product}</p>
                   </div>
-                </div>
 
-                <div className="mb-4 p-4 rounded-lg bg-ncd-surface/50 border border-border">
-                  <dt className="type-caption text-text-muted mb-1">Product / Idea</dt>
-                  <dd className="type-h4 font-medium text-text-primary">{team.product}</dd>
-                </div>
-
-                <div className="space-y-2">
-                  <dt className="type-caption text-text-muted">Members</dt>
-                  <ul className="space-y-1">
-                    {team.members.map((member) => (
-                      <li key={member} className="type-small text-text-secondary flex items-center gap-2">
-                        <span className="size-1.5 rounded-full bg-border" />
-                        {member}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </Card>
-            ))}
+                  <p className="type-caption mt-5 text-text-muted">{loading ? "Members" : `Members (${roster.length})`}</p>
+                  {loading ? (
+                    <div className="skeleton mt-2 h-24 w-full" aria-busy="true" />
+                  ) : (
+                    <ul className="mt-3 space-y-2">
+                      {roster.map((m) => (
+                        <li key={m.id} className="flex items-center gap-3">
+                          <Avatar name={m.full_name ?? "Member"} src={m.avatar_url} size={32} />
+                          <span className="type-small min-w-0 truncate">{m.full_name}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </Card>
+              );
+            })}
           </div>
-        </section>
-      ))}
+        )}
 
-      <div className="rounded-lg border border-dashed border-border-strong bg-ncd-dark p-8 md:p-12 text-center">
-        <Trophy className="mb-4 size-6 text-text-muted mx-auto" aria-hidden />
-        <p className="type-h4 text-text-primary mb-2">Competition Radar</p>
-        <p className="type-body text-text-secondary max-w-[60ch] mx-auto">
-          More competitions tracked by NCD will appear here. Each entry includes a Competition Brief with problem analysis, requirements, eligibility, and readiness assessment.
-        </p>
-      </div>
+        <p className="type-small mt-6 text-text-muted">No results, rankings or scores have been recorded for UGP-GBIC.</p>
+      </section>
     </Container>
   );
 }

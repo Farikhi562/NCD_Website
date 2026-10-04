@@ -1,303 +1,150 @@
 "use client";
 
 import Link from "next/link";
-import { Users, FolderKanban, Trophy, BookOpen, Calendar, Wallet, Newspaper, Box, Wifi, Hand, MapPin, Clock } from "lucide-react";
+import { Calendar, Clock, FolderKanban, MapPin, Trophy, UserRound } from "lucide-react";
+import { Avatar } from "@/components/ui/Avatar";
+import { Badge } from "@/components/ui/Badge";
+import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Container } from "@/components/ui/Container";
-import { PageHeader } from "@/components/ui/PageHeader";
-import { Breadcrumb } from "@/components/ui/Breadcrumb";
-import { Badge } from "@/components/ui/Badge";
-import { Avatar } from "@/components/ui/Avatar";
-import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/lib/auth";
+import { useMembers } from "@/hooks/useMembers";
+import { useProjects } from "@/hooks/useProjects";
 import { formatDate } from "@/lib/utils";
-import { members } from "@/data/members";
+import { isCompetitionTeam, ugpTeamByName, ugpTeams } from "@/config/ugp";
+import { splitActivities } from "@/config/activities";
 
-const appModules = [
-  { name: "People", href: "/app/people", icon: Users, text: "Members, skills, interests, and learning targets." },
-  { name: "Projects", href: "/app/projects", icon: FolderKanban, text: "Project Lab case studies: problem, research, solution, outcome." },
-  { name: "Competitions", href: "/app/competitions", icon: Trophy, text: "Competition Radar and Briefs." },
-  { name: "Activities", href: "/app/activities", icon: Calendar, text: "Dated record of NCD activities and outcomes." },
-  { name: "Knowledge", href: "/app/knowledge", icon: BookOpen, text: "Lessons, tutorials, and post-mortems." },
-  { name: "Transparency", href: "/app/transparency", icon: Wallet, text: "Transparent financial tracking for NCD." },
+function greetingFor(now: Date) {
+  const hour = Number(
+    new Intl.DateTimeFormat("en-GB", { hour: "numeric", hour12: false, timeZone: "Asia/Jakarta" }).format(now),
+  );
+  return hour < 11 ? "Good morning" : hour < 15 ? "Good afternoon" : hour < 19 ? "Good evening" : "Good night";
+}
+
+function Stat({ label, value, note, loading }: { label: string; value: string | number; note?: string; loading?: boolean }) {
+  return (
+    <Card className="p-5">
+      <p className="type-caption text-text-muted">{label}</p>
+      {loading ? <div className="skeleton mt-2 h-8 w-16" /> : <p className="type-h2 mt-1 font-medium text-text-primary">{value}</p>}
+      {note && !loading && <p className="type-small mt-1 text-text-secondary">{note}</p>}
+    </Card>
+  );
+}
+
+function Row({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-start justify-between gap-4 border-b border-border py-3 last:border-0">
+      <dt className="type-small text-text-muted">{label}</dt>
+      <dd className="type-small text-right font-medium text-text-primary">{children}</dd>
+    </div>
+  );
+}
+
+const quickAccess = [
+  { name: "Projects", href: "/app/projects", icon: FolderKanban, text: "What NCD is building." },
+  { name: "Competitions", href: "/app/competitions", icon: Trophy, text: "UGP-GBIC teams and products." },
+  { name: "Activities", href: "/app/activities", icon: Calendar, text: "Upcoming and past sessions." },
+  { name: "Profile", href: "/app/profile", icon: UserRound, text: "Your details and avatar." },
 ] as const;
 
-const ugpTeams = [
-  {
-    name: "Team 1",
-    product: "SCALE",
-    field: "Technology / Digital Business",
-    icon: Box,
-    members: 5,
-  },
-  {
-    name: "Team 2",
-    product: "NFC WiFi",
-    field: "Technology / Digital Business",
-    icon: Wifi,
-    members: 5,
-  },
-  {
-    name: "Team 3",
-    product: "Sarung Tangan dari Tape Singkong",
-    field: "Manufacturing / Craft",
-    icon: Hand,
-    members: 5,
-  },
-];
-
-const upcomingActivity = {
-  title: "Offline NCD Meeting: Organization Structure & Period I Work Program",
-  date: "2026-10-12",
-  time: "13:30 – finish",
-  location: "Bagi Kopi Margonda, Depok",
-};
-
 export default function DashboardPage() {
-  const { user, profile, status } = useAuth();
+  const { user, profile } = useAuth();
+  const { members, loading: membersLoading, error: membersError } = useMembers();
+  const { projects, loading: projectsLoading, error: projectsError } = useProjects();
 
-  if (status === "checking") {
-    return (
-      <Container className="py-8 md:py-12">
-        <Breadcrumb items={[{ label: "Dashboard", href: "/app/dashboard" }]} />
-        <PageHeader title="Dashboard" description="Loading..." className="mt-8" />
-        <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {appModules.map((module) => (
-            <Link key={module.name} href={module.href} className="block">
-              <Card className="h-full">
-                <div className="skeleton h-20 w-full" />
-                <div className="mt-4 space-y-3">
-                  <div className="skeleton h-6 w-1/3" />
-                  <div className="skeleton h-4 w-3/4" />
-                </div>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      </Container>
-    );
-  }
+  if (!user || !profile) return null;
 
-  if (!user || !profile) {
-    return (
-      <Container className="py-8 md:py-12">
-        <Breadcrumb items={[{ label: "Dashboard", href: "/app/dashboard" }]} />
-        <PageHeader title="Dashboard" description="Please sign in to access the dashboard." className="mt-8" />
-      </Container>
-    );
-  }
+  const now = new Date();
+  const name = profile.full_name ?? user.email?.split("@")[0] ?? "Member";
+  const firstName = name.split(/\s+/)[0];
+  const next = splitActivities(now).upcoming[0];
 
-  const displayName = profile.full_name ?? user.email?.split("@")[0] ?? "Member";
-  const firstName = profile.full_name?.split(" ")[0] ?? displayName;
-
-  // Time-based greeting
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-
-  // Calculate member stats
-  const competitionParticipants = members.filter(m => m.team && m.team.startsWith("Team") && m.team !== "Not Assigned").length;
-  const nonCompetitionMembers = members.filter(m => m.team === "Not Assigned").length;
+  // Everything below is computed from the members table (single source of truth).
+  const total = members.length;
+  const participants = members.filter((m) => isCompetitionTeam(m.team)).length;
+  const teamsInUse = ugpTeams.filter((t) => members.some((m) => m.team === t.name)).length;
+  const myTeam = ugpTeamByName(profile.team);
+  const activeProjects = projects.filter((p) => p.status === "active").length;
 
   return (
     <Container className="py-8 md:py-12">
-      <Breadcrumb items={[{ label: "Dashboard", href: "/app/dashboard" }]} />
+      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p className="type-caption text-text-muted">Your NCD Workspace</p>
+          <h1 className="type-h1 mt-1 font-medium">{greetingFor(now)}, {firstName}.</h1>
+        </div>
+        <div className="flex items-center gap-3">
+          {profile.role !== "member" && <Badge tone="info">{profile.role}</Badge>}
+          <Avatar name={name} src={profile.avatar_url} size={40} />
+        </div>
+      </header>
 
-      {/* Header with Greeting */}
-      <section className="mb-12">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="type-h1 font-medium">{greeting}, {firstName}.</h1>
-            <p className="type-body text-text-secondary mt-1">Here&apos;s what&apos;s happening in NCD.</p>
+      <section aria-labelledby="org-heading" className="mt-10">
+        <h2 id="org-heading" className="type-h4 mb-4 font-medium">Organization</h2>
+        {membersError ? (
+          <Card className="p-5"><p className="type-small text-text-secondary">Couldn&apos;t load organization data right now.</p></Card>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Stat label="Members" value={total} loading={membersLoading} />
+            <Stat label="UGP-GBIC teams" value={teamsInUse} note={`${participants} participants`} loading={membersLoading} />
+            <Stat label="Not in a UGP-GBIC team" value={total - participants} loading={membersLoading} />
           </div>
-          <div className="flex items-center gap-3">
-            <Badge tone="info" className="text-xs">{profile.role}</Badge>
-            <Avatar name={profile.full_name ?? user.email ?? "User"} className="h-8 w-8" />
-          </div>
-        </div>
+        )}
       </section>
 
-      {/* Organization Snapshot */}
-      <section className="mb-12">
-        <h2 className="type-h3 font-medium mb-6">Organization Snapshot</h2>
-        <div className="grid gap-4 md:grid-cols-4">
-          <Card className="p-6">
-            <p className="type-caption text-text-muted mb-1">Total Members</p>
-            <p className="type-h2 font-medium text-text-primary">{members.length}</p>
-            <p className="type-small text-text-secondary mt-1">{competitionParticipants} UGP-GBIC + {nonCompetitionMembers} non-competition</p>
+      <div className="mt-10 grid gap-6 lg:grid-cols-2">
+        <section aria-labelledby="upcoming-heading" className="flex flex-col">
+          <h2 id="upcoming-heading" className="type-h4 mb-4 font-medium">Upcoming</h2>
+          <Card className="flex-1">
+            {next ? (
+              <>
+                <h3 className="type-h4 font-medium">{next.title}</h3>
+                <dl className="type-small mt-4 space-y-2 text-text-secondary">
+                  <div className="flex items-center gap-2"><Calendar className="size-4 text-text-muted" aria-hidden /><dd>{formatDate(next.date)}</dd></div>
+                  <div className="flex items-center gap-2"><Clock className="size-4 text-text-muted" aria-hidden /><dd>{next.time}</dd></div>
+                  <div className="flex items-center gap-2"><MapPin className="size-4 text-text-muted" aria-hidden /><dd>{next.location}</dd></div>
+                </dl>
+                <ButtonLink href="/app/activities" variant="secondary" size="sm" className="mt-5">Agenda &amp; details</ButtonLink>
+              </>
+            ) : (
+              <p className="type-small text-text-secondary">No upcoming activities recorded.</p>
+            )}
           </Card>
-          <Card className="p-6">
-            <p className="type-caption text-text-muted mb-1">UGP-GBIC Participants</p>
-            <p className="type-h2 font-medium text-text-primary">{competitionParticipants}</p>
-            <p className="type-small text-text-secondary mt-1">15 members across 3 teams</p>
+        </section>
+
+        <section aria-labelledby="work-heading" className="flex flex-col">
+          <h2 id="work-heading" className="type-h4 mb-4 font-medium">Your work</h2>
+          <Card className="flex-1">
+            <dl>
+              <Row label="Competition">
+                {myTeam ? (
+                  <span>{myTeam.name} · {myTeam.product}</span>
+                ) : (
+                  <span className="text-text-secondary">Not in a UGP-GBIC team</span>
+                )}
+              </Row>
+              <Row label="Division">{profile.division && profile.division !== "Not Assigned" ? profile.division : <span className="text-text-secondary">Not assigned</span>}</Row>
+              <Row label="Active projects (NCD)">
+                {projectsLoading ? "…" : projectsError ? <span className="text-text-secondary">Unavailable</span> : activeProjects === 0 ? <span className="text-text-secondary">None yet</span> : activeProjects}
+              </Row>
+              <Row label="Recent activity"><span className="text-text-secondary">Nothing recorded yet</span></Row>
+            </dl>
           </Card>
-          <Card className="p-6">
-            <p className="type-caption text-text-muted mb-1">Non-Competition Members</p>
-            <p className="type-h2 font-medium text-text-primary">{nonCompetitionMembers}</p>
-            <p className="type-small text-text-secondary mt-1">Not currently in UGP-GBIC</p>
-          </Card>
-          <Card className="p-6">
-            <p className="type-caption text-text-muted mb-1">Divisions</p>
-            <p className="type-h2 font-medium text-text-primary">3</p>
-            <p className="type-small text-text-secondary mt-1">People & Culture, Competition & Strategy, Project & Development</p>
-          </Card>
-        </div>
-      </section>
+        </section>
+      </div>
 
-      {/* Current Focus: UGP-GBIC */}
-      <section className="mb-12">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="type-h3 font-medium">Current Focus</h2>
-          <Badge tone="warning">UGP-GBIC</Badge>
-        </div>
-        <p className="type-body text-text-secondary mb-6 max-w-2xl">
-          NCD is participating in UGP-GBIC (Universitas Gunadarma Programming - Global Business Innovation Challenge) 
-          with three teams across Technology, Digital Business, and Manufacturing fields.
-        </p>
-        <div className="grid gap-4 md:grid-cols-3">
-          {ugpTeams.map((team) => (
-            <Card key={team.name} className="p-6 hover:border-ncd-electric/50 transition-colors">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-ncd-electric/20 text-ncd-electric">
-                  <team.icon className="size-6" />
-                </div>
-                <div>
-                  <h3 className="type-h4 font-medium">{team.name}</h3>
-                  <p className="type-caption text-text-muted">{team.field}</p>
-                </div>
-              </div>
-              <div className="mb-4 p-4 rounded-lg bg-ncd-surface/50 border border-border">
-                <dt className="type-caption text-text-muted mb-1">Product / Idea</dt>
-                <dd className="type-h4 font-medium text-text-primary">{team.product}</dd>
-              </div>
-              <p className="type-small text-text-secondary">{team.members} members</p>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* Upcoming Activity */}
-      <section className="mb-12">
-        <h2 className="type-h3 font-medium mb-6">Upcoming Activity</h2>
-        <Card className="p-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex-1">
-              <h3 className="type-h4 font-medium mb-2">{upcomingActivity.title}</h3>
-              <p className="type-body text-text-secondary mb-4">
-                Offline NCD meeting discussing organization structure, Period I leadership, work program, vision, and mission.
-              </p>
-              <div className="flex flex-wrap gap-6 text-sm">
-                <div className="flex items-center gap-2 text-text-muted">
-                  <Calendar className="size-4" />
-                  <span className="font-medium text-text-secondary">{formatDate(upcomingActivity.date)}</span>
-                </div>
-                <div className="flex items-center gap-2 text-text-muted">
-                  <Clock className="size-4" />
-                  <span className="font-medium text-text-secondary">{upcomingActivity.time}</span>
-                </div>
-                <div className="flex items-center gap-2 text-text-muted">
-                  <MapPin className="size-4" />
-                  <span className="font-medium text-text-secondary">{upcomingActivity.location}</span>
-                </div>
-              </div>
-            </div>
-            <Link 
-              href="/activities" 
-              className="flex-shrink-0"
-            >
-              <Button variant="secondary" className="h-11">
-                View Details
-              </Button>
-            </Link>
-          </div>
-        </Card>
-      </section>
-
-      {/* Latest News */}
-      <section className="mb-12">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="type-h3 font-medium">Latest News</h2>
-          <Link href="/news" className="type-small text-ncd-electric hover:underline flex items-center gap-1">
-            View all
-            <Newspaper className="size-3" />
-          </Link>
-        </div>
-        <Card className="p-6 hover:border-ncd-electric/50 transition-colors">
-          <div className="flex items-center gap-2 mb-2">
-            <Badge tone="info">Organization</Badge>
-            <time className="type-caption text-text-muted">{formatDate("2026-10-12")}</time>
-          </div>
-          <h3 className="type-h4 font-medium mb-2">Offline NCD Meeting: Organization Structure & Period I Work Program</h3>
-          <p className="type-small text-text-secondary line-clamp-2">
-            Offline NCD meeting discussing organization structure, Period I leadership, work program, vision, and mission.
-          </p>
-        </Card>
-      </section>
-
-      {/* Quick Access */}
-      <section className="mb-12">
-        <h2 className="type-h3 font-medium mb-6">Quick Access</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {appModules.map((module) => (
-            <Link key={module.name} href={module.href} className="block">
-              <Card className="group hover:border-ncd-electric/50 hover:bg-ncd-hover transition-all h-full">
-                <div className="flex items-start gap-4 p-6">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-accent-tint text-ncd-electric group-hover:bg-ncd-electric group-hover:text-text-primary transition-colors">
-                    <module.icon className="size-6" aria-hidden />
-                  </div>
-                  <div>
-                    <h3 className="type-h4 font-medium text-text-primary group-hover:text-ncd-electric transition-colors">{module.name}</h3>
-                    <p className="mt-1 type-small text-text-secondary">{module.text}</p>
-                  </div>
-                </div>
+      <section aria-labelledby="quick-heading" className="mt-10">
+        <h2 id="quick-heading" className="type-h4 mb-4 font-medium">Quick access</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {quickAccess.map((item) => (
+            <Link key={item.href} href={item.href} className="group block">
+              <Card className="h-full p-5 transition-colors hover:border-ncd-electric/50 hover:bg-ncd-hover">
+                <item.icon className="size-5 text-ncd-electric" aria-hidden />
+                <p className="type-body mt-3 font-medium text-text-primary">{item.name}</p>
+                <p className="type-small mt-1 text-text-secondary">{item.text}</p>
               </Card>
             </Link>
           ))}
-        </div>
-      </section>
-
-      {/* Additional Quick Links */}
-      <section>
-        <h2 className="type-h3 font-medium mb-6">More</h2>
-        <div className="grid gap-3 md:grid-cols-3">
-          <Link href="/news" className="block">
-            <Card className="p-4 hover:border-ncd-electric/50 hover:bg-ncd-hover transition-colors group">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-ncd-electric/20 text-ncd-electric group-hover:bg-ncd-electric group-hover:text-text-primary transition-colors">
-                  <Newspaper className="size-5" />
-                </div>
-                <div>
-                  <p className="type-body font-medium text-text-primary">News</p>
-                  <p className="type-caption text-text-muted">Latest announcements</p>
-                </div>
-              </div>
-            </Card>
-          </Link>
-          <Link href="/people" className="block">
-            <Card className="p-4 hover:border-ncd-electric/50 hover:bg-ncd-hover transition-colors group">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/20 text-success group-hover:bg-success group-hover:text-text-primary transition-colors">
-                  <Users className="size-5" />
-                </div>
-                <div>
-                  <p className="type-body font-medium text-text-primary">People</p>
-                  <p className="type-caption text-text-muted">Members & leadership</p>
-                </div>
-              </div>
-            </Card>
-          </Link>
-          <Link href="/app/profile" className="block">
-            <Card className="p-4 hover:border-ncd-electric/50 hover:bg-ncd-hover transition-colors group">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-warning/20 text-warning group-hover:bg-warning group-hover:text-text-primary transition-colors">
-                  <Avatar name={profile.full_name ?? user.email ?? "User"} className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="type-body font-medium text-text-primary">Profile</p>
-                  <p className="type-caption text-text-muted">Your account settings</p>
-                </div>
-              </div>
-            </Card>
-          </Link>
         </div>
       </section>
     </Container>

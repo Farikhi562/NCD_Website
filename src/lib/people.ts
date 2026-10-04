@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { Member } from "@/lib/database.types";
+import { MEMBER_COLUMNS } from "@/config/members";
 
 export async function getMembers(): Promise<Member[]> {
   const cookieStore = await cookies();
@@ -18,7 +19,7 @@ export async function getMembers(): Promise<Member[]> {
 
   const { data, error } = await supabase
     .from("members")
-    .select("*")
+    .select(MEMBER_COLUMNS)
     .eq("is_public", true)
     .order("team", { ascending: true })
     .order("full_name", { ascending: true });
@@ -28,7 +29,7 @@ export async function getMembers(): Promise<Member[]> {
     return [];
   }
 
-  return (data as Member[]) || [];
+  return (data as unknown as Member[]) || [];
 }
 
 export async function getLeadership(): Promise<Member[]> {
@@ -47,7 +48,7 @@ export async function getLeadership(): Promise<Member[]> {
 
   const { data, error } = await supabase
     .from("members")
-    .select("*")
+    .select(MEMBER_COLUMNS)
     .in("org_role", ["Chairperson — Period I", "Vice Chairperson — Period I"])
     .order("org_role", { ascending: false });
 
@@ -56,7 +57,7 @@ export async function getLeadership(): Promise<Member[]> {
     return [];
   }
 
-  return (data as Member[]) || [];
+  return (data as unknown as Member[]) || [];
 }
 
 export async function getMembersByTeam(team: string): Promise<Member[]> {
@@ -75,7 +76,7 @@ export async function getMembersByTeam(team: string): Promise<Member[]> {
 
   const { data, error } = await supabase
     .from("members")
-    .select("*")
+    .select(MEMBER_COLUMNS)
     .eq("team", team)
     .eq("is_public", true)
     .order("full_name", { ascending: true });
@@ -85,7 +86,7 @@ export async function getMembersByTeam(team: string): Promise<Member[]> {
     return [];
   }
 
-  return (data as Member[]) || [];
+  return (data as unknown as Member[]) || [];
 }
 
 export async function getDivisions(): Promise<{

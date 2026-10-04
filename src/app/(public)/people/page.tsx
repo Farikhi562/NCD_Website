@@ -50,7 +50,7 @@ export default async function Page() {
       ]} />
       <PageHeader
         title="People"
-        description="NCD leadership, division structure, and members"
+        description="Meet the people behind NCD: leadership, divisions and members."
         className="mb-8"
       />
 

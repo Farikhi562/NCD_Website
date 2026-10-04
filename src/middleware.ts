@@ -90,8 +90,11 @@ export async function middleware(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    const redirectTo = request.nextUrl.searchParams.get("redirect") || "/app/dashboard";
-    
+    // Only allow same-site paths (blocks ?redirect=https://evil.example and //evil.example)
+    const requested = request.nextUrl.searchParams.get("redirect");
+    const redirectTo =
+      requested && requested.startsWith("/") && !requested.startsWith("//") ? requested : "/app/dashboard";
+
     if (profile && !profile.onboarding_completed) {
       return NextResponse.redirect(new URL("/app/onboarding", request.url));
     }

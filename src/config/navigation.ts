@@ -1,39 +1,51 @@
 /**
  * Navigation hierarchy lives here (agents.md §4). Never render every page at once.
  * Source: spec.md §7, design.md §14.
- * DECISION NEEDED(DD-09): placement of Squads / Growth / Kas in authenticated nav.
+ *
+ * PUBLIC  = Discover NCD  (top bar, visitors)
+ * /app/*  = Work in NCD   (sidebar, signed-in members)
  */
 export type NavItem = { label: string; href: string };
+export type NavGroup = { heading: string; items: NavItem[] };
 
 export const publicPrimaryNav: NavItem[] = [
+  { label: "About", href: "/about" },
   { label: "People", href: "/people" },
   { label: "Projects", href: "/projects" },
   { label: "Competitions", href: "/competitions" },
   { label: "Knowledge", href: "/knowledge" },
   { label: "Activities", href: "/activities" },
+  { label: "News", href: "/news" },
 ];
 
-export const publicSecondaryNav: NavItem[] = [
-  { label: "About", href: "/about" },
-  { label: "Login", href: "/login" },
+/** Logged-out only. Signed-in users never see Login / Register. */
+export const publicAuthNav = { login: { label: "Login", href: "/login" }, join: { label: "Join NCD", href: "/register" } };
+
+/** Signed-in sidebar. Three groups, nothing else (design: no crowded sidebar). */
+export const appNavGroups: NavGroup[] = [
+  {
+    heading: "Workspace",
+    items: [
+      { label: "Dashboard", href: "/app/dashboard" },
+      { label: "People", href: "/app/people" },
+      { label: "Projects", href: "/app/projects" },
+      { label: "Competitions", href: "/app/competitions" },
+      { label: "Knowledge", href: "/app/knowledge" },
+      { label: "Activities", href: "/app/activities" },
+    ],
+  },
+  {
+    heading: "Organization",
+    items: [
+      { label: "Squads", href: "/app/squads" },
+      { label: "Growth", href: "/app/growth" },
+      { label: "Documentation", href: "/app/documentation" },
+      { label: "Kas", href: "/app/kas" },
+    ],
+  },
 ];
 
-export const appNav: NavItem[] = [
-  { label: "Overview", href: "/app/dashboard" },
-  { label: "People", href: "/app/people" },
-  { label: "Projects", href: "/app/projects" },
-  { label: "Competitions", href: "/app/competitions" },
-  { label: "Knowledge", href: "/app/knowledge" },
-  { label: "Activities", href: "/app/activities" },
-  { label: "Transparency", href: "/app/transparency" },
-];
-
-export const appSecondaryNav: NavItem[] = [
-  { label: "Profile", href: "/app/profile" },
-  { label: "Logout", href: "/logout" }, // handled client-side
-];
-
-export const footerNav: { heading: string; items: NavItem[] }[] = [
+export const footerNav: NavGroup[] = [
   {
     heading: "Explore",
     items: [
@@ -56,8 +68,6 @@ export const footerNav: { heading: string; items: NavItem[] }[] = [
   },
   {
     heading: "Legal",
-    items: [
-      { label: "Terms of Service", href: "/terms" },
-    ],
+    items: [{ label: "Terms of Service", href: "/terms" }],
   },
 ];
