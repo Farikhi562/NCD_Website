@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
-import { SiteHeader } from "@/components/navigation/SiteHeader";
-import { SiteFooter } from "@/components/navigation/SiteFooter";
 import { site } from "@/config/content";
 import { siteUrl } from "@/lib/utils";
 import "./globals.css";
@@ -27,8 +25,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    // DECISION NEEDED(D-07): lang follows the UI language decision.
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
       <body className="flex min-h-dvh flex-col">
         <a
           href="#main"
@@ -36,9 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
-        <SiteHeader />
-        <main id="main" className="flex-1">{children}</main>
-        <SiteFooter />
+        {children}
       </body>
     </html>
   );

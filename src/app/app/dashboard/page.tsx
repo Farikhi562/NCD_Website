@@ -1,13 +1,15 @@
-import type { Metadata } from "next";
+"use client";
+
 import Link from "next/link";
-import { LayoutDashboard, Users, FolderKanban, Trophy, BookOpen, Calendar, Wallet } from "lucide-react";
-import { ModulePage } from "@/components/ui/ModulePage";
+import { Users, FolderKanban, Trophy, BookOpen, Calendar, Wallet, Newspaper, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
-import { createClient } from "@/lib/supabase/server";
-import { emptyStates } from "@/config/content";
+import { Badge } from "@/components/ui/Badge";
+import { Avatar } from "@/components/ui/Avatar";
+import { useAuth } from "@/lib/auth";
+import { formatDate } from "@/lib/utils";
 
 const appModules = [
   { name: "People", href: "/app/people", icon: Users, text: "Members, skills, interests, and learning targets." },
@@ -21,46 +23,217 @@ const appModules = [
   { name: "Documentation", href: "/app/documentation", icon: FolderKanban, text: "Internal documentation and templates." },
 ] as const;
 
-export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "NCD App — your dashboard.",
-};
+export default function DashboardPage() {
+  const { user, profile, loading } = useAuth();
 
-export default async function DashboardPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  if (loading) {
+    return (
+      <Container className="py-8 md:py-12">
+        <Breadcrumb items={[{ label: "Dashboard", href: "/app/dashboard" }]} />
+        <PageHeader title="Dashboard" description="Loading..." className="mt-8" />
+        <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {appModules.map((module) => (
+            <Link key={module.name} href={module.href} className="block">
+              <Card className="h-full">
+                <div className="skeleton h-20 w-full" />
+                <div className="mt-4 space-y-3">
+                  <div className="skeleton h-6 w-1/3" />
+                  <div className="skeleton h-4 w-3/4" />
+                </div>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </Container>
+    );
+  }
+
+  if (!user || !profile) {
+    return (
+      <Container className="py-8 md:py-12">
+        <Breadcrumb items={[{ label: "Dashboard", href: "/app/dashboard" }]} />
+        <PageHeader title="Dashboard" description="Please sign in to access the dashboard." className="mt-8" />
+      </Container>
+    );
+  }
+
+  const displayName = profile.full_name ?? user.email?.split("@")[0] ?? "Member";
+
+  // Sample news for dashboard (in real app, this would come from API)
+  const latestNews = [
+    {
+      id: "1",
+      title: "Meeting Luring NCD: Pemilihan Ketua Divisi",
+      date: "2026-10-12",
+      category: "Organization",
+    },
+  ];
 
   return (
     <Container className="py-8 md:py-12">
       <Breadcrumb items={[{ label: "Dashboard", href: "/app/dashboard" }]} />
-      <PageHeader title="Dashboard" description="Welcome back. Here's what's happening in NCD." className="mt-8" />
-      
-      <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {appModules.map((module) => (
-          <Link key={module.name} href={module.href} className="block">
-            <Card className="group hover:border-border-strong transition-colors h-full">
-              <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-tint text-ncd-electric group-hover:bg-ncd-electric group-hover:text-text-primary transition-colors">
-                  <module.icon className="size-5" aria-hidden />
+
+      {/* Welcome Section */}
+      <section className="mb-12">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="type-h1 font-medium">Welcome back, {displayName}.</h1>
+            <p className="type-body text-text-secondary mt-1">Here&apos;s what&apos;s happening in NCD.</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Badge tone="info" className="text-xs">{profile.role}</Badge>
+            <Avatar name={profile.full_name ?? user.email ?? "User"} className="h-8 w-8" />
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Stats */}
+      <section className="mb-12">
+        <h2 className="type-h3 font-medium mb-6">Quick Overview</h2>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-ncd-electric/20 text-ncd-electric">
+                <Sparkles className="size-6" />
+              </div>
+              <div>
+                <p className="type-caption text-text-muted">Total Members</p>
+                <p className="type-h3 font-medium text-text-primary">~30</p>
+              </div>
+            </div>
+          </Card>
+          <Card className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-success/20 text-success">
+                <FolderKanban className="size-6" />
+              </div>
+              <div>
+                <p className="type-caption text-text-muted">Active Projects</p>
+                <p className="type-h3 font-medium text-text-primary">0</p>
+              </div>
+            </div>
+          </Card>
+          <Card className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-warning/20 text-warning">
+                <Trophy className="size-6" />
+              </div>
+              <div>
+                <p className="type-caption text-text-muted">Tracked Competitions</p>
+                <p className="type-h3 font-medium text-text-primary">0</p>
+              </div>
+            </div>
+          </Card>
+          <Card className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-info/20 text-info">
+                <BookOpen className="size-6" />
+              </div>
+              <div>
+                <p className="type-caption text-text-muted">Knowledge Articles</p>
+                <p className="type-h3 font-medium text-text-primary">0</p>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </section>
+
+      {/* Latest News */}
+      <section className="mb-12">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="type-h3 font-medium">Latest News</h2>
+          <Link href="/news" className="type-small text-ncd-electric hover:underline flex items-center gap-1">
+            View all
+            <Newspaper className="size-3" />
+          </Link>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {latestNews.map((news) => (
+            <Link key={news.id} href={`/news/${news.id}`} className="block">
+              <Card className="h-full group hover:border-ncd-electric/50 transition-colors">
+                <div className="p-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge tone="info" className="text-xs">{news.category}</Badge>
+                    <time className="type-caption text-text-muted">{formatDate(news.date)}</time>
+                  </div>
+                  <h3 className="type-h4 font-medium mb-2 group-hover:text-ncd-electric transition-colors">{news.title}</h3>
+                  <p className="type-small text-text-secondary line-clamp-2">
+                    Rapat kerja luring NCD Periode I untuk memilih ketua ketiga divisi serta menyampaikan program kerja, visi, dan misi kepengurusan Mirza–Fauzan.
+                  </p>
+                </div>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Module Navigation */}
+      <section className="mb-12">
+        <h2 className="type-h3 font-medium mb-6">NCD Modules</h2>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {appModules.map((module) => (
+            <Link key={module.name} href={module.href} className="block">
+              <Card className="group hover:border-ncd-electric/50 hover:bg-ncd-hover transition-all h-full">
+                <div className="flex items-start gap-4 p-6">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-accent-tint text-ncd-electric group-hover:bg-ncd-electric group-hover:text-text-primary transition-colors">
+                    <module.icon className="size-6" aria-hidden />
+                  </div>
+                  <div>
+                    <h3 className="type-h4 font-medium text-text-primary group-hover:text-ncd-electric transition-colors">{module.name}</h3>
+                    <p className="mt-1 type-small text-text-secondary">{module.text}</p>
+                  </div>
+                </div>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Quick Links */}
+      <section>
+        <h2 className="type-h3 font-medium mb-6">Quick Links</h2>
+        <div className="grid gap-3 md:grid-cols-3">
+          <Link href="/news" className="block">
+            <Card className="p-4 hover:border-ncd-electric/50 hover:bg-ncd-hover transition-colors group">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-ncd-electric/20 text-ncd-electric group-hover:bg-ncd-electric group-hover:text-text-primary transition-colors">
+                  <Newspaper className="size-5" />
                 </div>
                 <div>
-                  <h3 className="type-h4 font-medium text-text-primary group-hover:text-ncd-electric transition-colors">{module.name}</h3>
-                  <p className="mt-1 type-small text-text-secondary">{module.text}</p>
+                  <p className="type-body font-medium text-text-primary">News</p>
+                  <p className="type-caption text-text-muted">Latest announcements</p>
                 </div>
               </div>
             </Card>
           </Link>
-        ))}
-      </div>
-
-      <div className="mt-12">
-        <h2 className="type-h3 font-medium">Quick Overview</h2>
-        <div className="mt-6 grid gap-6 md:grid-cols-3">
-          <ModulePage title="Members" description={emptyStates.people.description} icon={Users} empty={{ title: "0 members", description: "No members added yet." }} />
-          <ModulePage title="Projects" description={emptyStates.projects.description} icon={FolderKanban} empty={{ title: "0 projects", description: "No projects created yet." }} />
-          <ModulePage title="Kas Balance" description="Current financial status." icon={Wallet} empty={{ title: "Rp 0", description: "No transactions recorded." }} />
+          <Link href="/people" className="block">
+            <Card className="p-4 hover:border-ncd-electric/50 hover:bg-ncd-hover transition-colors group">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/20 text-success group-hover:bg-success group-hover:text-text-primary transition-colors">
+                  <Users className="size-5" />
+                </div>
+                <div>
+                  <p className="type-body font-medium text-text-primary">People</p>
+                  <p className="type-caption text-text-muted">Members & leadership</p>
+                </div>
+              </div>
+            </Card>
+          </Link>
+          <Link href="/competitions" className="block">
+            <Card className="p-4 hover:border-ncd-electric/50 hover:bg-ncd-hover transition-colors group">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-warning/20 text-warning group-hover:bg-warning group-hover:text-text-primary transition-colors">
+                  <Trophy className="size-5" />
+                </div>
+                <div>
+                  <p className="type-body font-medium text-text-primary">Competitions</p>
+                  <p className="type-caption text-text-muted">Radar & Briefs</p>
+                </div>
+              </div>
+            </Card>
+          </Link>
         </div>
-      </div>
+      </section>
     </Container>
   );
 }

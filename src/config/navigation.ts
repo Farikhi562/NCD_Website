@@ -45,6 +45,7 @@ export const footerNav: { heading: string; items: NavItem[] }[] = [
       { label: "Competitions", href: "/competitions" },
       { label: "Knowledge", href: "/knowledge" },
       { label: "Activities", href: "/activities" },
+      { label: "News", href: "/news" },
     ],
   },
   {
@@ -54,6 +55,12 @@ export const footerNav: { heading: string; items: NavItem[] }[] = [
       { label: "Transparency", href: "/transparency" },
       { label: "Archive", href: "/archive" },
       { label: "Login", href: "/login" },
+    ],
+  },
+  {
+    heading: "Legal",
+    items: [
+      { label: "Terms of Service", href: "/terms" },
     ],
   },
 ];
