@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { CalendarDays, MapPin, Users } from "lucide-react";
+import { CalendarDays, MapPin, Users, Map } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -17,14 +16,24 @@ export const metadata: Metadata = {
 const activities = [
   {
     id: "1",
-    title: "Offline NCD Meeting",
+    title: "Offline NCD Meeting: Organization Structure & Period I Work Program",
     date: "2026-10-12",
-    location: "NEXA Tech Labs Office, Bandung",
+    time: "13:30 – finish",
+    location: "Bagi Kopi Margonda, Depok",
+    locationUrl: "https://share.google/tFM7yQGYHS4HqlASG",
     category: "Organization",
     description: "Offline NCD meeting discussing organization structure, Period I leadership, work program, vision, and mission.",
     participants: "Period I Leadership & Division Lead Candidates",
     documentation: "Internal archive",
-    outcome: "Division lead elections initiated; work program presented; vision & mission shared.",
+    outcome: "Organization structure aligned; Period I leadership confirmed; work program, vision, and mission presented.",
+    agenda: [
+      "Opening and Welcome by Chairperson, Mirza Danisywar Noor Wahyu",
+      "Organization Structure discussion for the three permanent NCD divisions",
+      "Period I Leadership alignment and roles",
+      "Work Program Presentation by Vice Chairperson, Muhamad Fauzan Al Farikhi",
+      "Vision & Mission Presentation by Chairperson",
+      "Discussion and Alignment",
+    ],
   },
 ];
 
@@ -63,7 +72,46 @@ export default function Page() {
               </div>
               <h2 className="type-h4 font-medium mb-2">{activity.title}</h2>
               <p className="type-body text-text-secondary mb-4">{activity.description}</p>
-              <div className="grid gap-4 md:grid-cols-3 text-sm">
+
+              {/* Time and Location */}
+              <div className="grid gap-4 md:grid-cols-2 mb-4">
+                <div className="flex items-center gap-3 p-4 rounded-lg bg-ncd-surface/50 border border-border">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-ncd-electric/20 text-ncd-electric shrink-0">
+                    <CalendarDays className="size-5" />
+                  </div>
+                  <div>
+                    <dt className="type-caption text-text-muted">Time</dt>
+                    <dd className="type-body font-medium">{activity.time}</dd>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-4 rounded-lg bg-ncd-surface/50 border border-border">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-ncd-electric/20 text-ncd-electric shrink-0">
+                    <MapPin className="size-5" />
+                  </div>
+                  <div>
+                    <dt className="type-caption text-text-muted">Location</dt>
+                    <dd className="type-body font-medium">{activity.location}</dd>
+                    <dd className="type-caption text-text-muted mt-1">
+                      <a href={activity.locationUrl} target="_blank" rel="noopener noreferrer" className="text-ncd-electric hover:underline flex items-center gap-1">
+                        <Map className="size-3" />
+                        Open in Maps
+                      </a>
+                    </dd>
+                  </div>
+                </div>
+              </div>
+
+              {/* Agenda */}
+              <div className="mb-4">
+                <h3 className="type-h4 font-medium mb-3">Agenda</h3>
+                <ol className="list-decimal list-inside space-y-2 type-body text-text-secondary">
+                  {activity.agenda.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
+                </ol>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-3 text-sm pt-4 border-t border-border">
                 <div>
                   <dt className="type-caption text-text-muted mb-1">Documentation</dt>
                   <dd className="type-body text-text-secondary">{activity.documentation}</dd>

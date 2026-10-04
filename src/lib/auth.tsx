@@ -1,7 +1,7 @@
 // src/lib/auth.ts
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 import type { ReactNode } from "react";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
@@ -29,7 +29,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [status, setStatus] = useState<AuthStatus>("checking");
 
-  const supabase = createClient();
+  // Use useMemo to create supabase client only once
+  const supabase = useMemo(() => createClient(), []);
 
   const fetchProfile = useCallback(async (userId: string): Promise<Profile | null> => {
     const { data, error } = await supabase
@@ -54,12 +55,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
+    let initialSessionResolved = false;
 
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!mounted) return;
+        initialSessionResolved = true;
         
         if (session?.user) {
           setUser(session.user);
@@ -86,6 +89,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
       
+      // Skip the initial session event if we already resolved it
+      if (event === "INITIAL_SESSION" && initialSessionResolved) {
+        return;
+      }
+      
       if (session?.user) {
         setUser(session.user);
         const profileData = await fetchProfile(session.user.id);
@@ -104,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [fetchProfile]);
+  }, [fetchProfile, supabase]);
 
   const signOut = async () => {
     await supabase.auth.signOut();

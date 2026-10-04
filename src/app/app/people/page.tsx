@@ -8,7 +8,7 @@ import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { useState } from "react";
-import { members, leadership, teams, divisions, placeholderImage } from "@/data/members";
+import { members, leadership, divisions } from "@/data/members";
 
 export default function PeoplePage() {
   const [searchQuery, setSearchQuery] = useState("");

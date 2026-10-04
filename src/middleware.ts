@@ -1,10 +1,40 @@
 import { type NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { updateSession } from "@/lib/supabase/middleware";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
 export async function middleware(request: NextRequest) {
-  // First refresh the session
-  const response = await updateSession(request);
+  let supabaseResponse = NextResponse.next({
+    request,
+  });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value;
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          request.cookies.set({ name, value, ...options });
+          supabaseResponse = NextResponse.next({
+            request,
+          });
+          supabaseResponse.cookies.set({ name, value, ...options });
+        },
+        remove(name: string, options: CookieOptions) {
+          request.cookies.set({ name, value: "", ...options });
+          supabaseResponse = NextResponse.next({
+            request,
+          });
+          supabaseResponse.cookies.set({ name, value: "", ...options });
+        },
+      },
+    }
+  );
+
+  // Refresh session if expired - required for Server Components
+  const { data: { user } } = await supabase.auth.getUser();
 
   // Check if the request is for a protected route
   const { pathname } = request.nextUrl;
@@ -43,12 +73,7 @@ export async function middleware(request: NextRequest) {
 
   // If it's a protected route and not public/api/static, check for authentication
   if (!isPublicRoute && !isApiOrStatic) {
-    // The updateSession already refreshed the session
-    // We need to check if user is authenticated by looking at the session cookie
-    const hasSession = request.cookies.get("sb-access-token") ||
-      request.cookies.get("sb-refresh-token");
-
-    if (!hasSession) {
+    if (!user) {
       // Redirect to login with the original path as redirect parameter
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
@@ -56,13 +81,38 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // If user is authenticated and tries to access login/register, redirect to dashboard
-  if ((pathname === "/login" || pathname === "/register") && request.cookies.get("sb-access-token")) {
+  // If user is authenticated and tries to access login/register, redirect appropriately
+  if ((pathname === "/login" || pathname === "/register") && user) {
+    // Check onboarding status
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("onboarding_completed")
+      .eq("id", user.id)
+      .single();
+
     const redirectTo = request.nextUrl.searchParams.get("redirect") || "/app/dashboard";
+    
+    if (profile && !profile.onboarding_completed) {
+      return NextResponse.redirect(new URL("/app/onboarding", request.url));
+    }
+    
     return NextResponse.redirect(new URL(redirectTo, request.url));
   }
 
-  return response;
+  // If accessing onboarding but already completed, redirect to dashboard
+  if (pathname === "/app/onboarding" && user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("onboarding_completed")
+      .eq("id", user.id)
+      .single();
+
+    if (profile && profile.onboarding_completed) {
+      return NextResponse.redirect(new URL("/app/dashboard", request.url));
+    }
+  }
+
+  return supabaseResponse;
 }
 
 export const config = {

@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Clock, Users } from "lucide-react";
+import { ArrowLeft, Clock, Users } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import { Card } from "@/components/ui/Card";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Badge } from "@/components/ui/Badge";
 import { formatDate } from "@/lib/utils";
@@ -27,25 +26,26 @@ const newsArticles: Record<string, {
     readTime: "5 min read",
     author: "NCD Secretariat",
     content: `
-      <p class="mb-4">On 12 October 2026, NCD (NEXA Community Development) held the Offline NCD Meeting for Period I at the NEXA Tech Labs office. This meeting was attended by the entire Period I leadership and marked a historic moment as the first offline meeting of the new leadership.</p>
+      <p class="mb-4">On 12 October 2026, NCD (NEXA Community Development) held the Offline NCD Meeting for Period I at Bagi Kopi Margonda, Depok. This meeting was attended by the entire Period I leadership and marked a historic moment as the first offline meeting of the new leadership.</p>
 
       <h3 class="type-h3 font-medium mt-8 mb-4">Meeting Agenda</h3>
       <ol class="list-decimal list-inside space-y-3 type-body text-text-secondary mb-8">
         <li><strong>Opening and Welcome</strong> by Chairperson, Mirza Danisywar Noor Wahyu.</li>
-        <li><strong>Division Lead Election</strong> for the three permanent NCD divisions.</li>
+        <li><strong>Organization Structure</strong> discussion for the three permanent NCD divisions.</li>
+        <li><strong>Period I Leadership</strong> alignment and roles.</li>
         <li><strong>Work Program Presentation</strong> by Vice Chairperson, Muhamad Fauzan Al Farikhi.</li>
         <li><strong>Vision & Mission Presentation</strong> by Chairperson.</li>
-        <li><strong>Discussion and Closing</strong>.</li>
+        <li><strong>Discussion and Alignment</strong>.</li>
       </ol>
 
-      <h3 class="type-h3 font-medium mt-8 mb-4">Division Lead Election Results</h3>
-      <p class="mb-4">Division lead elections were conducted democratically through internal voting. Results are as follows:</p>
+      <h3 class="type-h3 font-medium mt-8 mb-4">Organization Structure</h3>
+      <p class="mb-4">The meeting discussed the three permanent divisions of NCD:</p>
       <ul class="list-disc list-inside space-y-2 type-body text-text-secondary mb-8">
-        <li><strong>People & Culture:</strong> Not Assigned</li>
-        <li><strong>Competition & Strategy:</strong> Not Assigned</li>
-        <li><strong>Project & Development:</strong> Not Assigned</li>
+        <li><strong>People & Culture:</strong> Member development, onboarding, networking, and personal growth.</li>
+        <li><strong>Competition & Strategy:</strong> Competition Radar, Competition Brief, Competition Day, and Retrospective.</li>
+        <li><strong>Project & Development:</strong> Project Lab, Project Clinic, Squad formation, and Demo Day.</li>
       </ul>
-      <p class="mb-4">Division lead elections will continue in a follow-up meeting next week. Candidates are currently conducting interviews and presenting their vision for each division.</p>
+      <p class="mb-4">Division leads remain <strong>Not Assigned</strong> as of this meeting. Selection will continue in follow-up sessions.</p>
 
       <h3 class="type-h3 font-medium mt-8 mb-4">Period I Work Program</h3>
       <p class="mb-4">Vice Chairperson Muhamad Fauzan Al Farikhi presented the Period I work program outline organized by division:</p>
@@ -76,11 +76,11 @@ const newsArticles: Record<string, {
         </div>
         <div>
           <dt className="type-caption text-text-muted">Time</dt>
-          <dd className="type-body font-medium">09:00 – 15:00 WIB</dd>
+          <dd className="type-body font-medium">13:30 – finish</dd>
         </div>
         <div>
           <dt className="type-caption text-text-muted">Location</dt>
-          <dd className="type-body font-medium">NEXA Tech Labs Office, Bandung</dd>
+          <dd className="type-body font-medium">Bagi Kopi Margonda, Depok</dd>
         </div>
         <div>
           <dt className="type-caption text-text-muted">Participants</dt>

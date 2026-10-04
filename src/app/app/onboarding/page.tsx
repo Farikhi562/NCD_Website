@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, ArrowRight, ArrowLeft, Check, Sparkles, Users, FolderKanban, Trophy, BookOpen, Calendar, X } from "lucide-react";
+import { Loader2, ArrowRight, ArrowLeft, Check, Sparkles, Users, FolderKanban, Trophy, BookOpen, X } from "lucide-react";
 import { AuthShell } from "@/components/ui/AuthShell";
 import { Button } from "@/components/ui/Button";
 import { InputWithIcon } from "@/components/ui/Field";

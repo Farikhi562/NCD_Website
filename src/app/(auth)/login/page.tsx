@@ -9,6 +9,7 @@ import { InputWithIcon } from "@/components/ui/Field";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { AuthError } from "@/components/ui/AuthError";
 import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/lib/auth";
 
 const features = [
   { icon: Users, label: "Community", desc: "Connect with members across cohorts" },
@@ -23,6 +24,7 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/app/dashboard";
+  const { status, user } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,6 +33,13 @@ export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "reset">("login");
 
   const supabase = createClient();
+
+  // If already authenticated, redirect appropriately
+  if (status === "authenticated" && user) {
+    // This will be handled by middleware, but as a fallback:
+    router.replace(redirectTo);
+    return null;
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,24 +51,9 @@ export default function LoginPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      // Successful login - redirect will be handled by middleware/auth state change
-      // Check onboarding status and redirect appropriately
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("onboarding_completed")
-          .eq("id", user.id)
-          .single();
-
-        if (profile && !profile.onboarding_completed) {
-          router.push("/app/onboarding");
-        } else {
-          router.push(redirectTo);
-        }
-      } else {
-        router.push(redirectTo);
-      }
+      // Successful login - the AuthProvider's onAuthStateChange will handle profile fetch
+      // and the middleware will redirect based on onboarding_completed
+      // We just need to refresh the router to trigger middleware check
       router.refresh();
     }
   };
@@ -226,6 +220,18 @@ export default function LoginPage() {
       </p>
     </form>
   );
+
+  // Show loading state while auth is checking
+  if (status === "checking") {
+    return (
+      <AuthShell brandSection={brandSection}>
+        <div className="w-full max-w-[420px] mx-auto text-center py-12">
+          <Loader2 className="size-8 animate-spin mx-auto text-ncd-electric" />
+          <p className="mt-4 type-body text-text-secondary">Loading...</p>
+        </div>
+      </AuthShell>
+    );
+  }
 
   return (
     <AuthShell brandSection={brandSection}>

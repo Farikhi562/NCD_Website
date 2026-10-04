@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
-import { members, leadership, teams, divisions, placeholderImage } from "@/data/members";
+import { members, leadership, teams } from "@/data/members";
 
 export const metadata: Metadata = {
   title: "People",
