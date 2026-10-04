@@ -15,7 +15,7 @@ export type UgpTeam = { name: "Team 1" | "Team 2" | "Team 3"; product: string; f
 export const ugpTeams: readonly UgpTeam[] = [
   { name: "Team 1", product: "SCALE", field: "Technology / Digital Business" },
   { name: "Team 2", product: "NFC WiFi", field: "Technology / Digital Business" },
-  { name: "Team 3", product: "Sarung Tangan dari Tape Singkong", field: "Manufacturing / Craft" },
+  { name: "Team 3", product: "CASSAFEX", field: "Manufacturing / Craft" },
 ];
 
 export function isCompetitionTeam(team: string | null | undefined): boolean {
