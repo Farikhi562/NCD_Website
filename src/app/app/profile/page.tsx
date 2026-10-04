@@ -46,11 +46,10 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  // Form state - initialize from profile
+  // Form state - initialize from profile (NPM removed)
   const [formData, setFormData] = useState({
     full_name: profile?.full_name || "",
     bio: profile?.bio || "",
-    npm: profile?.npm || "",
     interests: profile?.interests || [],
   });
 
@@ -68,7 +67,6 @@ export default function ProfilePage() {
       setFormData({
         full_name: profile.full_name || "",
         bio: profile.bio || "",
-        npm: profile.npm || "",
         interests: profile.interests || [],
       });
       setAvatarPreview(profile.avatar_url);
@@ -79,7 +77,6 @@ export default function ProfilePage() {
   const [memberData, setMemberData] = useState<{
     team: string | null;
     division: string | null;
-    npm: string | null;
     org_role: string | null;
   } | null>(null);
 
@@ -87,7 +84,7 @@ export default function ProfilePage() {
     if (user?.id) {
       supabase
         .from("members")
-        .select("team, division, npm, org_role")
+        .select("team, division, org_role")
         .eq("id", user.id)
         .single()
         .then(({ data }) => {
@@ -107,7 +104,6 @@ export default function ProfilePage() {
         setFormData({
           full_name: profile.full_name || "",
           bio: profile.bio || "",
-          npm: profile.npm || "",
           interests: profile.interests || [],
         });
         setAvatarPreview(profile.avatar_url);
@@ -119,7 +115,6 @@ export default function ProfilePage() {
         setFormData({
           full_name: profile.full_name || "",
           bio: profile.bio || "",
-          npm: profile.npm || "",
           interests: profile.interests || [],
         });
         setAvatarPreview(profile.avatar_url);
@@ -211,7 +206,6 @@ export default function ProfilePage() {
         .update({
           full_name: formData.full_name.trim() || null,
           bio: formData.bio.trim() || null,
-          npm: formData.npm.trim() || null,
           interests: formData.interests.length > 0 ? formData.interests : null,
           avatar_url: avatarUrl,
         })
@@ -230,7 +224,6 @@ export default function ProfilePage() {
           email: user.email,
           full_name: formData.full_name.trim() || null,
           bio: formData.bio.trim() || null,
-          npm: formData.npm.trim() || null,
           interests: formData.interests.length > 0 ? formData.interests : null,
           avatar_url: avatarUrl,
           is_public: true,
@@ -410,10 +403,6 @@ export default function ProfilePage() {
                   <Building2 className="size-4 text-text-muted" />
                   <span className="text-text-secondary">Division: {memberData.division || "Not Assigned"}</span>
                 </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <Award className="size-4 text-text-muted" />
-                  <span className="text-text-secondary">NPM: {memberData.npm || "Not set"}</span>
-                </div>
               </>
             )}
           </div>
@@ -465,23 +454,6 @@ export default function ProfilePage() {
               <p className="mt-1 type-caption text-text-muted text-right">{formData.bio.length}/500</p>
             </div>
 
-            {/* NPM */}
-            <div>
-              <label htmlFor="profile-npm" className="type-small font-medium text-text-primary block mb-2">
-                NPM (Student ID) <span className="text-text-muted">(optional)</span>
-              </label>
-              <input
-                id="profile-npm"
-                type="text"
-                value={formData.npm}
-                onChange={(e) => handleInputChange("npm", e.target.value)}
-                placeholder="e.g., 50425672"
-                className="w-full rounded-md border border-border bg-ncd-elevated px-3 py-2 type-small text-text-primary placeholder:text-text-muted focus:border-ncd-electric focus:outline-none focus:ring-2 focus:ring-ncd-electric/20 disabled:bg-ncd-surface"
-                disabled={!editMode}
-                autoComplete="off"
-              />
-            </div>
-
             {/* Interests */}
             <div>
               <label className="type-small font-medium text-text-primary block mb-2">
@@ -523,10 +495,6 @@ export default function ProfilePage() {
                   <div>
                     <dt className="type-caption text-text-muted">Division</dt>
                     <dd className="type-small font-medium text-text-primary">{memberData.division || "Not Assigned"}</dd>
-                  </div>
-                  <div>
-                    <dt className="type-caption text-text-muted">NPM</dt>
-                    <dd className="type-small font-mono text-text-primary">{memberData.npm || "Not set"}</dd>
                   </div>
                   <div>
                     <dt className="type-caption text-text-muted">Role</dt>

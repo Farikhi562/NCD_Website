@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
-import { members, leadership } from "@/data/members";
+import { getMembers, getLeadership, getDivisions, getDivisionLeads } from "@/lib/people";
 
 export const metadata: Metadata = {
   title: "About",
@@ -56,7 +56,19 @@ const supportSystems = [
   { name: "Knowledge Base", description: "Sharing materials, tutorials, insights, post-mortems" },
 ];
 
-export default function Page() {
+export default async function Page() {
+  const [members, leadership, divisions, divisionLeads] = await Promise.all([
+    getMembers(),
+    getLeadership(),
+    getDivisions(),
+    getDivisionLeads(),
+  ]);
+
+  const divisionInfo = divisions.map((div) => ({
+    ...div,
+    lead: { name: divisionLeads[div.name] || "Not Assigned" },
+  }));
+
   return (
     <Container className="py-8 md:py-12">
       <Breadcrumb items={[
@@ -109,16 +121,16 @@ export default function Page() {
         <h2 className="type-h3 font-medium mb-6">Leadership — Period I</h2>
         <div className="grid gap-6 md:grid-cols-2">
           {leadership.map((person) => (
-            <Card key={person.name} className="p-6">
+            <Card key={person.id} className="p-6">
               <div className="flex items-start gap-4">
-                <Avatar name={person.name} className="h-16 w-16" />
+                <Avatar name={person.full_name || "Unknown"} src={person.avatar_url} className="h-16 w-16" />
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <h3 className="type-h4 font-medium">{person.name}</h3>
-                    <Badge tone="info">{person.role}</Badge>
+                    <h3 className="type-h4 font-medium">{person.full_name}</h3>
+                    <Badge tone="info">{person.org_role || person.role}</Badge>
                   </div>
                   <p className="type-body text-text-secondary mb-2">
-                    {person.role === "Chairperson — Period I"
+                    {person.org_role === "Chairperson — Period I"
                       ? "Sets strategic direction and makes organizational decisions."
                       : "Coordinates execution, monitoring, and program delivery."}
                   </p>
@@ -147,7 +159,7 @@ export default function Page() {
                 </div>
                 <div>
                   <h3 className="type-h4 font-medium">{division.name}</h3>
-                  <p className="type-caption text-text-muted">Division Lead: {division.lead}</p>
+                  <p className="type-caption text-text-muted">Division Lead: {division.lead.name}</p>
                 </div>
               </div>
               <p className="type-body text-text-secondary mb-4">{division.description}</p>
@@ -161,7 +173,7 @@ export default function Page() {
               <div className="pt-4 border-t border-border">
                 <div className="flex items-center gap-2 text-sm text-text-muted">
                   <UsersIcon className="size-3" />
-                  <span>Division Lead: {division.lead}</span>
+                  <span>Division Lead: {division.lead.name}</span>
                 </div>
               </div>
             </Card>
@@ -191,7 +203,7 @@ export default function Page() {
             <p><strong>Divisions (3):</strong> People & Culture · Competition & Strategy · Project & Development</p>
             <p><strong>Support Systems (4):</strong> NCD Kas · NCD Website · Documentation · Knowledge Base</p>
             <p><strong>Competition Squads:</strong> Temporary, formed per competition/project</p>
-            <p><strong>Total Members:</strong> {members.length} across 3 teams</p>
+            <p><strong>Total Members:</strong> 20 (15 UGP-GBIC participants + 5 non-competition members)</p>
           </div>
         </Card>
       </section>

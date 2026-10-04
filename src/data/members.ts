@@ -1,11 +1,11 @@
 // src/data/members.ts
 // Canonical member data for NCD — single source of truth
-// Matches the official NCD member list (15 members, 3 teams, 3 divisions, 2 leadership)
+// Matches the official NCD member list (20 members, 3 teams, 3 divisions, 2 leadership)
 
 export interface Member {
   name: string;
   npm: string;
-  team: "Team 1" | "Team 2" | "Team 3";
+  team: "Team 1" | "Team 2" | "Team 3" | "Not Assigned";
   division: "People & Culture" | "Competition & Strategy" | "Project & Development" | "Not Assigned";
   role: "Chairperson — Period I" | "Vice Chairperson — Period I" | "Division Lead" | "Member";
   image: string;
@@ -13,7 +13,7 @@ export interface Member {
 }
 
 export const members: Member[] = [
-  // Team 1
+  // Team 1 (UGP-GBIC competition participants)
   {
     name: "Dian Aulia Febrianti",
     npm: "10225457",
@@ -60,7 +60,7 @@ export const members: Member[] = [
     email: "annisa.saskia@ncd.id",
   },
 
-  // Team 2
+  // Team 2 (UGP-GBIC competition participants)
   {
     name: "Mochamad Triandra Andantyo",
     npm: "50425637",
@@ -107,7 +107,7 @@ export const members: Member[] = [
     email: "chantika.shinta@ncd.id",
   },
 
-  // Team 3
+  // Team 3 (UGP-GBIC competition participants)
   {
     name: "Deryl Jonathan Yofan",
     npm: "50425267",
@@ -153,6 +153,53 @@ export const members: Member[] = [
     image: "/images/sheva-putra-firdaus.png",
     email: "sheva.putra@ncd.id",
   },
+
+  // Additional 5 members (NOT in UGP-GBIC competition teams)
+  {
+    name: "Muhammad Ferdynand Syah",
+    npm: "NEW001",
+    team: "Not Assigned",
+    division: "Not Assigned",
+    role: "Member",
+    image: "/images/placeholder-member.png",
+    email: "muhammad.ferdynand@ncd.id",
+  },
+  {
+    name: "Fanny Novianty Lumban Gaol",
+    npm: "NEW002",
+    team: "Not Assigned",
+    division: "Not Assigned",
+    role: "Member",
+    image: "/images/placeholder-member.png",
+    email: "fanny.novianty@ncd.id",
+  },
+  {
+    name: "Muhammad Raffi Anam",
+    npm: "NEW003",
+    team: "Not Assigned",
+    division: "Not Assigned",
+    role: "Member",
+    image: "/images/placeholder-member.png",
+    email: "muhammad.raffi@ncd.id",
+  },
+  {
+    name: "Farhan Putra Pradhana",
+    npm: "NEW004",
+    team: "Not Assigned",
+    division: "Not Assigned",
+    role: "Member",
+    image: "/images/placeholder-member.png",
+    email: "farhan.putra@ncd.id",
+  },
+  {
+    name: "Waldan Zubary",
+    npm: "NEW005",
+    team: "Not Assigned",
+    division: "Not Assigned",
+    role: "Member",
+    image: "/images/placeholder-member.png",
+    email: "waldan.zubary@ncd.id",
+  },
 ];
 
 export const leadership = members.filter(
@@ -163,6 +210,7 @@ export const teams = {
   "Team 1": members.filter((m) => m.team === "Team 1"),
   "Team 2": members.filter((m) => m.team === "Team 2"),
   "Team 3": members.filter((m) => m.team === "Team 3"),
+  "Not Assigned": members.filter((m) => m.team === "Not Assigned"),
 };
 
 export const divisions = {
@@ -180,7 +228,7 @@ export function getMemberByEmail(email: string): Member | undefined {
   return members.find((m) => m.email === email);
 }
 
-export function getMembersByTeam(team: "Team 1" | "Team 2" | "Team 3"): Member[] {
+export function getMembersByTeam(team: "Team 1" | "Team 2" | "Team 3" | "Not Assigned"): Member[] {
   return members.filter((m) => m.team === team);
 }
 

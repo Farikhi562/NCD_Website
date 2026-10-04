@@ -39,6 +39,7 @@ export default async function Page() {
     "Team 1": members.filter((m) => m.team === "Team 1"),
     "Team 2": members.filter((m) => m.team === "Team 2"),
     "Team 3": members.filter((m) => m.team === "Team 3"),
+    "Not Assigned": members.filter((m) => m.team === "Not Assigned"),
   };
 
   return (
@@ -104,7 +105,7 @@ export default async function Page() {
                       <Avatar name={member.full_name || "Unknown"} src={member.avatar_url} className="h-10 w-10" />
                       <div className="flex-1 min-w-0">
                         <h4 className="type-small font-medium truncate">{member.full_name}</h4>
-                        <p className="type-caption text-text-muted truncate">NPM: {member.npm || "Not set"}</p>
+                        <p className="type-caption text-text-muted truncate">{member.org_role || member.role}</p>
                       </div>
                     </div>
                   ))}
@@ -177,7 +178,6 @@ export default async function Page() {
                     <Badge tone="neutral" className="text-xs">{member.org_role || member.role}</Badge>
                     <Badge tone="neutral" className="text-xs">{member.team}</Badge>
                   </div>
-                  <p className="type-caption text-text-muted mt-1 truncate">NPM: {member.npm || "Not set"}</p>
                 </div>
               </div>
             </Card>

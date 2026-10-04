@@ -94,6 +94,11 @@ export default function DashboardPage() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
+  // Calculate member stats
+  const competitionParticipants = members.filter(m => m.team && m.team.startsWith("Team") && m.team !== "Not Assigned").length;
+  const nonCompetitionMembers = members.filter(m => m.team === "Not Assigned").length;
+  const totalMembers = members.length;
+
   return (
     <Container className="py-8 md:py-12">
       <Breadcrumb items={[{ label: "Dashboard", href: "/app/dashboard" }]} />
@@ -115,16 +120,21 @@ export default function DashboardPage() {
       {/* Organization Snapshot */}
       <section className="mb-12">
         <h2 className="type-h3 font-medium mb-6">Organization Snapshot</h2>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-4">
           <Card className="p-6">
-            <p className="type-caption text-text-muted mb-1">Members</p>
+            <p className="type-caption text-text-muted mb-1">Total Members</p>
             <p className="type-h2 font-medium text-text-primary">{members.length}</p>
+            <p className="type-small text-text-secondary mt-1">{competitionParticipants} UGP-GBIC + {nonCompetitionMembers} non-competition</p>
+          </Card>
+          <Card className="p-6">
+            <p className="type-caption text-text-muted mb-1">UGP-GBIC Participants</p>
+            <p className="type-h2 font-medium text-text-primary">{competitionParticipants}</p>
             <p className="type-small text-text-secondary mt-1">15 members across 3 teams</p>
           </Card>
           <Card className="p-6">
-            <p className="type-caption text-text-muted mb-1">Teams</p>
-            <p className="type-h2 font-medium text-text-primary">3</p>
-            <p className="type-small text-text-secondary mt-1">Team 1, Team 2, Team 3</p>
+            <p className="type-caption text-text-muted mb-1">Non-Competition Members</p>
+            <p className="type-h2 font-medium text-text-primary">{nonCompetitionMembers}</p>
+            <p className="type-small text-text-secondary mt-1">Not currently in UGP-GBIC</p>
           </Card>
           <Card className="p-6">
             <p className="type-caption text-text-muted mb-1">Divisions</p>

@@ -92,6 +92,7 @@ export default function PeoplePage() {
               <option value="Team 1">Team 1</option>
               <option value="Team 2">Team 2</option>
               <option value="Team 3">Team 3</option>
+              <option value="Not Assigned">Not Assigned</option>
             </select>
             <select
               value={filterDivision}
@@ -250,11 +251,10 @@ export default function PeoplePage() {
                 <div className="flex-1 min-w-0">
                   <h3 className="type-h4 font-medium truncate">{member.full_name}</h3>
                   <div className="flex flex-wrap gap-1.5 mt-1">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-border bg-ncd-surface/50 type-caption text-text-secondary">{member.role}</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-border bg-ncd-surface/50 type-caption text-text-secondary">{member.org_role || member.role}</span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-border bg-ncd-surface/50 type-caption text-text-secondary">{member.team}</span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-border bg-ncd-surface/50 type-caption text-text-secondary">{member.division}</span>
                   </div>
-                  <p className="type-caption text-text-muted mt-1 truncate">NPM: {member.npm || "Not set"}</p>
                 </div>
               </div>
             </Card>
