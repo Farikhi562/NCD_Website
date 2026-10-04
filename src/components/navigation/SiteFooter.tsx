@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { footerNav, } from "@/config/navigation";
+import { footerNav } from "@/config/navigation";
 import { site } from "@/config/content";
 
 export function SiteFooter() {
@@ -30,6 +30,9 @@ export function SiteFooter() {
             </div>
           ))}
         </nav>
+      </div>
+      <div className="border-t border-border mx-auto max-w-[1280px] px-4 py-4 md:px-6 lg:px-8 xl:px-12">
+        <p className="type-caption text-text-muted text-center">Powered by NEXA Tech Labs 2026</p>
       </div>
     </footer>
   );
