@@ -97,7 +97,6 @@ export default function DashboardPage() {
   // Calculate member stats
   const competitionParticipants = members.filter(m => m.team && m.team.startsWith("Team") && m.team !== "Not Assigned").length;
   const nonCompetitionMembers = members.filter(m => m.team === "Not Assigned").length;
-  const totalMembers = members.length;
 
   return (
     <Container className="py-8 md:py-12">

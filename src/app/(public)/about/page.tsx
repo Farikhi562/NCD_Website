@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
-import { getMembers, getLeadership, getDivisions, getDivisionLeads } from "@/lib/people";
+import { getLeadership, getDivisionLeads } from "@/lib/people";
 
 export const metadata: Metadata = {
   title: "About",
@@ -22,33 +22,6 @@ const values = [
   { name: "Contribution", description: "Authorship is visible on knowledge and projects.", icon: Award },
 ];
 
-const divisionInfo = [
-  {
-    name: "People & Culture",
-    description: "Manages member development, onboarding, networking, and personal growth.",
-    programs: ["NCD Discover", "NCD Connect", "NCD Grow", "Growth Map"],
-    lead: "Not Assigned",
-    icon: Users,
-    color: "bg-ncd-electric/20 text-ncd-electric",
-  },
-  {
-    name: "Competition & Strategy",
-    description: "Manages Competition Radar, Competition Brief, Competition Day, and Retrospective.",
-    programs: ["Competition Radar", "Competition Brief", "Competition Day", "Retrospective"],
-    lead: "Not Assigned",
-    icon: Award,
-    color: "bg-success/20 text-success",
-  },
-  {
-    name: "Project & Development",
-    description: "Manages Project Lab, Project Clinic, Squad formation, and Demo Day.",
-    programs: ["Project Lab", "Project Clinic", "Squad Formation", "Demo Day"],
-    lead: "Not Assigned",
-    icon: Building2,
-    color: "bg-warning/20 text-warning",
-  },
-];
-
 const supportSystems = [
   { name: "NCD Kas", description: "Shared fund and transparent recording system" },
   { name: "NCD Website", description: "Digital home and digital infrastructure of NCD" },
@@ -57,14 +30,39 @@ const supportSystems = [
 ];
 
 export default async function Page() {
-  const [members, leadership, divisions, divisionLeads] = await Promise.all([
-    getMembers(),
+  const [leadership, divisionLeads] = await Promise.all([
     getLeadership(),
-    getDivisions(),
     getDivisionLeads(),
   ]);
 
-  const divisionInfo = divisions.map((div) => ({
+  const staticDivisions = [
+    {
+      name: "People & Culture",
+      description: "Manages member development, onboarding, networking, and personal growth.",
+      programs: ["NCD Discover", "NCD Connect", "NCD Grow", "Growth Map"],
+      lead: "Not Assigned",
+      icon: Users,
+      color: "bg-ncd-electric/20 text-ncd-electric",
+    },
+    {
+      name: "Competition & Strategy",
+      description: "Manages Competition Radar, Competition Brief, Competition Day, and Retrospective.",
+      programs: ["Competition Radar", "Competition Brief", "Competition Day", "Retrospective"],
+      lead: "Not Assigned",
+      icon: Award,
+      color: "bg-success/20 text-success",
+    },
+    {
+      name: "Project & Development",
+      description: "Manages Project Lab, Project Clinic, Squad formation, and Demo Day.",
+      programs: ["Project Lab", "Project Clinic", "Squad Formation", "Demo Day"],
+      lead: "Not Assigned",
+      icon: Building2,
+      color: "bg-warning/20 text-warning",
+    },
+  ];
+
+  const divisionInfo = staticDivisions.map((div) => ({
     ...div,
     lead: { name: divisionLeads[div.name] || "Not Assigned" },
   }));
