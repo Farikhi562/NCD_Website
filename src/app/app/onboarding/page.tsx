@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, ArrowRight, Check, Sparkles, Brain, Code, Palette, BarChart, Briefcase, FlaskConical, Globe } from "lucide-react";
+import { Loader2, ArrowRight, ArrowLeft, Check, Sparkles, Users, FolderKanban, Trophy, BookOpen, Calendar, X } from "lucide-react";
 import { AuthShell } from "@/components/ui/AuthShell";
 import { Button } from "@/components/ui/Button";
 import { InputWithIcon } from "@/components/ui/Field";
@@ -10,34 +10,74 @@ import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/auth";
 
 const interestOptions = [
-  { value: "technology", label: "Technology", icon: Code },
-  { value: "ai", label: "AI", icon: Brain },
-  { value: "data", label: "Data", icon: BarChart },
-  { value: "design", label: "Design", icon: Palette },
-  { value: "business", label: "Business", icon: Briefcase },
-  { value: "programming", label: "Programming", icon: Code },
-  { value: "research", label: "Research", icon: FlaskConical },
-  { value: "other", label: "Other", icon: Globe },
+  { value: "technology", label: "Technology" },
+  { value: "ai", label: "AI" },
+  { value: "data", label: "Data" },
+  { value: "design", label: "Design" },
+  { value: "business", label: "Business" },
+  { value: "programming", label: "Programming" },
+  { value: "research", label: "Research" },
+  { value: "other", label: "Other" },
+];
+
+const tutorialSteps = [
+  {
+    title: "Your Workspace",
+    description: "Understand the NCD dashboard and organization workspace — your home for projects, people, and progress.",
+    icon: FolderKanban,
+  },
+  {
+    title: "People",
+    description: "Explore members, leadership, and divisions. Find collaborators by skill, interest, and experience.",
+    icon: Users,
+  },
+  {
+    title: "Projects",
+    description: "Track projects and collaborative work from idea to case study. Build your portfolio.",
+    icon: FolderKanban,
+  },
+  {
+    title: "Competitions & Activities",
+    description: "Stay updated with NCD activities, announcements, and competition opportunities.",
+    icon: Trophy,
+  },
+  {
+    title: "Your Profile",
+    description: "Manage your profile, skills, interests, and account information.",
+    icon: BookOpen,
+  },
 ];
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { user, loading: authLoading, refreshProfile } = useAuth();
+  const { user, status, refreshProfile } = useAuth();
   const supabase = createClient();
 
+  // Tutorial state
+  const [tutorialStep, setTutorialStep] = useState(0);
+  const [showTutorial, setShowTutorial] = useState(true);
+
+  // Profile state
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [interests, setInterests] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [step, setStep] = useState<"profile" | "interests" | "complete">("profile");
 
   // Redirect if not authenticated
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (status === "unauthenticated") {
       router.push("/login");
     }
-  }, [user, authLoading, router]);
+  }, [status, router]);
+
+  // Check if user already completed onboarding
+  useEffect(() => {
+    if (status === "authenticated" && user) {
+      // Check if onboarding was already completed via profile
+      // This will be handled by the redirect logic in login
+    }
+  }, [status, user]);
 
   const handleProfileSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +93,7 @@ export default function OnboardingPage() {
       return;
     }
 
-    setStep("interests");
+    setShowTutorial(false);
   };
 
   const toggleInterest = (value: string) => {
@@ -109,7 +149,8 @@ export default function OnboardingPage() {
       // Refresh the auth context to update onboarding_completed status
       await refreshProfile();
 
-      setStep("complete");
+      router.push("/app/dashboard");
+      router.refresh();
     } catch (err) {
       console.error("Onboarding error:", err);
       setError("An unexpected error occurred. Please try again.");
@@ -117,12 +158,98 @@ export default function OnboardingPage() {
     }
   };
 
+  const renderTutorial = () => (
+    <div className="w-full max-w-[420px] mx-auto">
+      <div className="text-center mb-8">
+        <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-ncd-surface/50 text-ncd-electric type-caption font-medium mb-4">
+          <Sparkles className="size-3" />
+          Step {tutorialStep + 1} of {tutorialSteps.length}
+        </span>
+        <h1 className="type-h1 font-medium mt-4">{tutorialSteps[tutorialStep].title}</h1>
+        <p className="type-body text-text-secondary mt-2">{tutorialSteps[tutorialStep].description}</p>
+      </div>
+
+      <div className="mb-8">
+        <div className="relative h-48 w-full rounded-lg bg-ncd-surface/50 border border-border flex items-center justify-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent-tint text-ncd-electric">
+            {(() => {
+              const Icon = tutorialSteps[tutorialStep].icon;
+              return <Icon className="size-8" aria-hidden="true" />;
+            })()}
+          </div>
+        </div>
+      </div>
+
+      {/* Progress indicator */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-2">
+          {tutorialSteps.map((_, index) => (
+            <div key={index} className="flex-1">
+              <div
+                className={`h-1.5 rounded-full transition-colors ${
+                  index <= tutorialStep ? "bg-ncd-electric" : "bg-border"
+                }`}
+              />
+            </div>
+          ))}
+        </div>
+        <p className="type-caption text-text-muted text-center">{tutorialStep + 1} / {tutorialSteps.length}</p>
+      </div>
+
+      <div className="flex gap-3">
+        {tutorialStep > 0 && (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setTutorialStep((prev) => prev - 1)}
+            disabled={loading}
+            className="flex-1"
+          >
+            <ArrowLeft className="size-4 mr-2" />
+            Back
+          </Button>
+        )}
+        <Button
+          type="button"
+          onClick={() => {
+            if (tutorialStep < tutorialSteps.length - 1) {
+              setTutorialStep((prev) => prev + 1);
+            } else {
+              setShowTutorial(false);
+            }
+          }}
+          disabled={loading}
+          className="flex-1"
+        >
+          {tutorialStep < tutorialSteps.length - 1 ? (
+            <>
+              Next
+              <ArrowRight className="size-4 ml-2" />
+            </>
+          ) : (
+            "Get Started"
+          )}
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => setShowTutorial(false)}
+          disabled={loading}
+          className="px-3"
+        >
+          <X className="size-4" />
+          <span className="sr-only">Skip tutorial</span>
+        </Button>
+      </div>
+    </div>
+  );
+
   const renderProfileStep = () => (
     <form onSubmit={handleProfileSubmit} className="w-full max-w-[420px] mx-auto">
       <div className="text-center mb-8">
         <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-ncd-surface/50 text-ncd-electric type-caption font-medium mb-4">
           <Sparkles className="size-3" />
-          Step 1 of 2
+          Profile Setup
         </span>
         <h1 className="type-h1 font-medium mt-4">Tell us about yourself</h1>
         <p className="type-body text-text-secondary mt-2">This helps us personalize your NCD experience.</p>
@@ -130,7 +257,7 @@ export default function OnboardingPage() {
 
       <InputWithIcon
         id="onboarding-displayName"
-        label="Display Name"
+        label="Full Name"
         type="text"
         value={displayName}
         onChange={(e) => setDisplayName(e.target.value)}
@@ -149,7 +276,7 @@ export default function OnboardingPage() {
           id="onboarding-bio"
           value={bio}
           onChange={(e) => setBio(e.target.value)}
-          placeholder="What brings you to NCD?"
+          placeholder="What brings you to NCD? What are you working on?"
           className="h-24 w-full rounded-md border border-text-muted bg-ncd-elevated px-3 py-2 type-small text-text-primary placeholder:text-text-muted resize-none focus:border-ncd-electric focus:outline-none focus:ring-2 focus:ring-ncd-electric/20 disabled:text-text-disabled"
           disabled={loading}
           maxLength={300}
@@ -165,9 +292,13 @@ export default function OnboardingPage() {
       )}
 
       <div className="mt-6 flex gap-3">
+        <Button type="button" variant="secondary" onClick={() => setShowTutorial(true)} disabled={loading} className="flex-1">
+          <ArrowLeft className="size-4 mr-2" />
+          Back to Tutorial
+        </Button>
         <Button type="submit" disabled={loading} className="flex-1">
-          {loading ? <Loader2 className="size-4 animate-spin" /> : "Continue"}
-          <ArrowRight className="size-4" />
+          Continue
+          <ArrowRight className="size-4 ml-2" />
         </Button>
       </div>
     </form>
@@ -178,7 +309,7 @@ export default function OnboardingPage() {
       <div className="text-center mb-8">
         <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-ncd-surface/50 text-ncd-electric type-caption font-medium mb-4">
           <Sparkles className="size-3" />
-          Step 2 of 2
+          Interests
         </span>
         <h1 className="type-h1 font-medium mt-4">What are you interested in?</h1>
         <p className="type-body text-text-secondary mt-2">Select all that apply. You can change this later.</p>
@@ -190,22 +321,15 @@ export default function OnboardingPage() {
             key={option.value}
             type="button"
             onClick={() => toggleInterest(option.value)}
-            className={`relative p-4 rounded-lg border transition-all duration-200 flex items-center gap-3 ${
+            className={`relative p-4 rounded-lg border transition-all duration-200 flex flex-col items-center gap-2 ${
               interests.includes(option.value)
                 ? "border-ncd-electric bg-accent-tint"
                 : "border-border bg-ncd-surface/50 hover:border-border-strong hover:bg-ncd-hover"
             }`}
           >
-            <div className={`flex h-9 w-9 items-center justify-center rounded-md transition-colors ${
-              interests.includes(option.value)
-                ? "bg-ncd-electric text-text-primary"
-                : "bg-accent-tint text-ncd-electric"
-            }`}>
-              <option.icon className="size-5" aria-hidden="true" />
-            </div>
-            <span className="type-small font-medium text-text-primary">{option.label}</span>
+            <span className="type-small font-medium text-text-primary text-center">{option.label}</span>
             {interests.includes(option.value) && (
-              <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-ncd-electric text-text-primary">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-ncd-electric text-text-primary">
                 <Check className="size-3" />
               </span>
             )}
@@ -221,31 +345,16 @@ export default function OnboardingPage() {
       )}
 
       <div className="mt-6 flex gap-3">
-        <Button type="button" variant="secondary" onClick={() => setStep("profile")} disabled={loading} className="flex-1">
-          Back
+        <Button type="button" variant="secondary" onClick={() => setShowTutorial(false)} disabled={loading} className="flex-1">
+          <ArrowLeft className="size-4 mr-2" />
+          Back to Profile
         </Button>
         <Button type="submit" disabled={loading} className="flex-1">
-          {loading ? <Loader2 className="size-4 animate-spin" /> : "Complete setup"}
-          <ArrowRight className="size-4" />
+          {loading ? <Loader2 className="size-4 animate-spin" /> : "Complete Setup"}
+          <ArrowRight className="size-4 ml-2" />
         </Button>
       </div>
     </form>
-  );
-
-  const renderComplete = () => (
-    <div className="text-center">
-      <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
-        <Sparkles className="size-8 text-success" aria-hidden="true" />
-      </div>
-      <h1 className="type-h1 font-medium mb-2">Welcome to NCD!</h1>
-      <p className="type-body text-text-secondary mb-8 max-w-sm mx-auto">
-        Your profile is ready. Start exploring projects, competitions, and the community.
-      </p>
-      <Button onClick={() => router.push("/app/dashboard")} className="w-full max-w-xs mx-auto">
-        Enter NCD
-        <ArrowRight className="size-4" />
-      </Button>
-    </div>
   );
 
   const brandSection = (
@@ -255,20 +364,33 @@ export default function OnboardingPage() {
         Growth Together.
       </span>
 
-      <h2 className="type-display font-medium tracking-tight text-text-primary leading-[1.1] mb-6">
-        Welcome to NCD.<br />
-        Let&apos;s set up your profile.
-      </h2>
-
-      <p className="type-lead text-text-secondary mb-12 max-w-md">
-        A few quick questions to help us connect you with the right people, projects, and opportunities.
-      </p>
+      {showTutorial ? (
+        <>
+          <h2 className="type-display font-medium tracking-tight text-text-primary leading-[1.1] mb-6">
+            Welcome to NCD.<br />
+            Let&apos;s get you started.
+          </h2>
+          <p className="type-lead text-text-secondary mb-12 max-w-md">
+            A quick tour to understand your workspace, then we&apos;ll set up your profile.
+          </p>
+        </>
+      ) : (
+        <>
+          <h2 className="type-display font-medium tracking-tight text-text-primary leading-[1.1] mb-6">
+            Set up your profile.<br />
+            Almost done.
+          </h2>
+          <p className="type-lead text-text-secondary mb-12 max-w-md">
+            A few details to help us connect you with the right people, projects, and opportunities.
+          </p>
+        </>
+      )}
 
       <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-ncd-electric/40 to-transparent" aria-hidden="true" />
     </div>
   );
 
-  if (authLoading) {
+  if (status === "checking") {
     return (
       <AuthShell brandSection={brandSection}>
         <div className="w-full max-w-[420px] mx-auto text-center py-12">
@@ -285,7 +407,13 @@ export default function OnboardingPage() {
 
   return (
     <AuthShell brandSection={brandSection}>
-      {step === "profile" ? renderProfileStep() : step === "interests" ? renderInterestsStep() : renderComplete()}
+      {showTutorial ? (
+        renderTutorial()
+      ) : displayName === "" ? (
+        renderProfileStep()
+      ) : (
+        renderInterestsStep()
+      )}
     </AuthShell>
   );
 }

@@ -242,10 +242,10 @@ export default function KasPage() {
         {transactions.length === 0 ? (
           <EmptyState
             icon={Wallet}
-            title={canViewInternal ? "Belum ada transaksi yang terdokumentasi." : "Tidak ada data transaksi publik saat ini."}
+            title={canViewInternal ? "No transactions documented yet." : "No public transaction data available."}
             description={canViewInternal
-              ? "Transaksi akan muncul di sini setelah ditambahkan oleh bendahara/admin."
-              : "Informasi keuangan detail tersedia untuk anggota yang login."}
+              ? "Transactions will appear here once added by treasurer/admin."
+              : "Detailed financial information is available to authenticated members."}
           />
         ) : (
           <Card>

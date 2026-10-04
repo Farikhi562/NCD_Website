@@ -1,4 +1,5 @@
 import { type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
@@ -19,10 +20,12 @@ export async function middleware(request: NextRequest) {
     "/activities",
     "/transparency",
     "/archive",
+    "/news",
     "/login",
     "/register",
     "/auth/reset-password",
     "/auth/confirm",
+    "/terms",
   ];
 
   // Check if the path is a public route or starts with a public route prefix
@@ -35,6 +38,7 @@ export async function middleware(request: NextRequest) {
   const isApiOrStatic = pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon.ico") ||
+    pathname.startsWith("/images") ||
     /\.(png|jpg|svg|ico)$/.test(pathname);
 
   // If it's a protected route and not public/api/static, check for authentication
@@ -52,7 +56,24 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // If user is authenticated and tries to access login/register, redirect to dashboard
+  if ((pathname === "/login" || pathname === "/register") && request.cookies.get("sb-access-token")) {
+    const redirectTo = request.nextUrl.searchParams.get("redirect") || "/app/dashboard";
+    return NextResponse.redirect(new URL(redirectTo, request.url));
+  }
+
   return response;
 }
 
-import { NextResponse } from "next/server";
+export const config = {
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - images (public images)
+     */
+    "/((?!_next/static|_next/image|favicon.ico|images).*)",
+  ],
+};

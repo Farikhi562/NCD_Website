@@ -7,10 +7,13 @@ import { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { Profile } from "@/lib/database.types";
 
+export type AuthStatus = "checking" | "authenticated" | "unauthenticated" | "error";
+
 interface AuthContextType {
   user: User | null;
   profile: Profile | null;
-  loading: boolean;
+  status: AuthStatus;
+  loading: boolean; // Deprecated: use status instead
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   isAdmin: boolean;
@@ -24,11 +27,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState<AuthStatus>("checking");
 
   const supabase = createClient();
 
-  const fetchProfile = useCallback(async (userId: string) => {
+  const fetchProfile = useCallback(async (userId: string): Promise<Profile | null> => {
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
@@ -50,48 +53,76 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, fetchProfile]);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id).then((profileData: Profile | null) => {
-          setProfile(profileData);
-          setLoading(false);
-        });
-      } else {
-        setLoading(false);
-      }
-    });
+    let mounted = true;
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user ?? null);
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!mounted) return;
+        
+        if (session?.user) {
+          setUser(session.user);
+          const profileData = await fetchProfile(session.user.id);
+          if (mounted) {
+            setProfile(profileData);
+            setStatus("authenticated");
+          }
+        } else {
+          setUser(null);
+          setProfile(null);
+          setStatus("unauthenticated");
+        }
+      } catch (error) {
+        console.error("Auth initialization error:", error);
+        if (mounted) {
+          setStatus("error");
+        }
+      }
+    };
+
+    initializeAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+      
       if (session?.user) {
+        setUser(session.user);
         const profileData = await fetchProfile(session.user.id);
-        setProfile(profileData);
+        if (mounted) {
+          setProfile(profileData);
+          setStatus("authenticated");
+        }
       } else {
+        setUser(null);
         setProfile(null);
+        setStatus("unauthenticated");
       }
-      setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
-  }, [fetchProfile, supabase.auth]);
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [fetchProfile]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    setUser(null);
-    setProfile(null);
+    // State will be updated via onAuthStateChange
   };
 
   const role = profile?.role ?? "member";
   const needsOnboarding = profile ? !profile.onboarding_completed : true;
+
+  // Backward compatibility: loading is true when status is checking
+  const loading = status === "checking";
 
   return (
     <AuthContext.Provider
       value={{
         user,
         profile,
+        status,
         loading,
         signOut,
         refreshProfile,

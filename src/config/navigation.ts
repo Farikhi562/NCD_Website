@@ -19,16 +19,13 @@ export const publicSecondaryNav: NavItem[] = [
 ];
 
 export const appNav: NavItem[] = [
-  { label: "Dashboard", href: "/app/dashboard" },
+  { label: "Overview", href: "/app/dashboard" },
   { label: "People", href: "/app/people" },
-  { label: "Activities", href: "/app/activities" },
   { label: "Projects", href: "/app/projects" },
   { label: "Competitions", href: "/app/competitions" },
-  { label: "Squads", href: "/app/squads" },
   { label: "Knowledge", href: "/app/knowledge" },
-  { label: "Growth", href: "/app/growth" },
-  { label: "Documentation", href: "/app/documentation" },
-  { label: "Kas", href: "/app/kas" },
+  { label: "Activities", href: "/app/activities" },
+  { label: "Transparency", href: "/app/transparency" },
 ];
 
 export const appSecondaryNav: NavItem[] = [

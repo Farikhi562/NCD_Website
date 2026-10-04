@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
+import { members, leadership, teams, divisions, placeholderImage } from "@/data/members";
 
 export const metadata: Metadata = {
   title: "People",
@@ -13,142 +14,38 @@ export const metadata: Metadata = {
   alternates: { canonical: "/people" },
 };
 
-const leadership = [
-  {
-    name: "Mirza Danisywar Noor Wahyu",
-    role: "Ketua Periode I",
-    division: "Leadership",
-    description: "Menentukan arah strategis dan keputusan organisasi",
-    avatar: "MDNW",
-  },
-  {
-    name: "Muhamad Fauzan Al Farikhi",
-    role: "Wakil Ketua Periode I",
-    division: "Leadership",
-    description: "Koordinasi eksekusi, monitoring, dan eksekusi program",
-    avatar: "MFAF",
-  },
-];
-
-const members = [
-  {
-    name: "Dian Aulia Febrianti",
-    role: "Anggota",
-    division: "TBD",
-    description: "Anggota NCD",
-    avatar: "DAF",
-  },
-  {
-    name: "Derly Jonathan Yoffan",
-    role: "Anggota",
-    division: "TBD",
-    description: "Anggota NCD",
-    avatar: "DJY",
-  },
-  {
-    name: "Syawalludin Firoh Rahman",
-    role: "Anggota",
-    division: "TBD",
-    description: "Anggota NCD",
-    avatar: "SFR",
-  },
-  {
-    name: "Annisa Saskia",
-    role: "Anggota",
-    division: "TBD",
-    description: "Anggota NCD",
-    avatar: "AS",
-  },
-  {
-    name: "Sri Gunarti Wijiastuti",
-    role: "Anggota",
-    division: "TBD",
-    description: "Anggota NCD",
-    avatar: "SGW",
-  },
-  {
-    name: "Mochamad Triandra Andantyo",
-    role: "Anggota",
-    division: "TBD",
-    description: "Anggota NCD",
-    avatar: "MTA",
-  },
-  {
-    name: "Ghazali Syaqih Husein",
-    role: "Anggota",
-    division: "TBD",
-    description: "Anggota NCD",
-    avatar: "GSH",
-  },
-  {
-    name: "Putri Aura Wening",
-    role: "Anggota",
-    division: "TBD",
-    description: "Anggota NCD",
-    avatar: "PAW",
-  },
-  {
-    name: "Muhammad Iqbal Fajri",
-    role: "Anggota",
-    division: "TBD",
-    description: "Anggota NCD",
-    avatar: "MIF",
-  },
-  {
-    name: "Chantika Shinta Sgonia",
-    role: "Anggota",
-    division: "TBD",
-    description: "Anggota NCD",
-    avatar: "CSS",
-  },
-  {
-    name: "Nedri Febrianto",
-    role: "Anggota",
-    division: "TBD",
-    description: "Anggota NCD",
-    avatar: "NF",
-  },
-  {
-    name: "Sheva Putra Firdaus",
-    role: "Anggota",
-    division: "TBD",
-    description: "Anggota NCD",
-    avatar: "SPF",
-  },
-];
-
-const divisions = [
+const divisionInfo = [
   {
     name: "People & Culture",
-    description: "Mengelola pengembangan anggota, onboarding, networking, dan pertumbuhan personal.",
+    description: "Manages member development, onboarding, networking, and personal growth.",
     programs: ["NCD Discover", "NCD Connect", "NCD Grow", "Growth Map"],
-    lead: { name: "Belum Dipilih", avatar: "TBD" },
+    lead: { name: "Not Assigned" },
     icon: Users,
     color: "bg-ncd-electric/20 text-ncd-electric",
   },
   {
     name: "Competition & Strategy",
-    description: "Mengelola Competition Radar, Competition Brief, Competition Day, dan Retrospective.",
+    description: "Manages Competition Radar, Competition Brief, Competition Day, and Retrospective.",
     programs: ["Competition Radar", "Competition Brief", "Competition Day", "Retrospective"],
-    lead: { name: "Belum Dipilih", avatar: "TBD" },
+    lead: { name: "Not Assigned" },
     icon: Award,
     color: "bg-success/20 text-success",
   },
   {
     name: "Project & Development",
-    description: "Mengelola Project Lab, Project Clinic, Squad formation, dan Demo Day.",
+    description: "Manages Project Lab, Project Clinic, Squad formation, and Demo Day.",
     programs: ["Project Lab", "Project Clinic", "Squad Formation", "Demo Day"],
-    lead: { name: "Belum Dipilih", avatar: "TBD" },
+    lead: { name: "Not Assigned" },
     icon: Building2,
     color: "bg-warning/20 text-warning",
   },
 ];
 
 const supportSystems = [
-  { name: "NCD Kas", description: "Dana bersama dan sistem pencatatan transparan", icon: "💰" },
-  { name: "NCD Website", description: "Digital home dan infrastruktur digital NCD", icon: "🌐" },
-  { name: "Documentation", description: "Dokumentasi kegiatan, knowledge base, dan arsip", icon: "📚" },
-  { name: "Knowledge Base", description: "Materi sharing, tutorial, insight, post-mortem", icon: "🧠" },
+  { name: "NCD Kas", description: "Shared fund and transparent recording system", icon: "💰" },
+  { name: "NCD Website", description: "Digital home and digital infrastructure of NCD", icon: "🌐" },
+  { name: "Documentation", description: "Activity documentation, knowledge base, and archive", icon: "📚" },
+  { name: "Knowledge Base", description: "Sharing materials, tutorials, insights, post-mortems", icon: "🧠" },
 ];
 
 export default function Page() {
@@ -166,21 +63,27 @@ export default function Page() {
 
       {/* Leadership Section */}
       <section className="mb-12">
-        <h2 className="type-h3 font-medium mb-6">Leadership Periode I</h2>
+        <h2 className="type-h3 font-medium mb-6">Leadership — Period I</h2>
         <div className="grid gap-6 md:grid-cols-2">
           {leadership.map((person) => (
             <Card key={person.name} className="p-6">
               <div className="flex items-start gap-4">
-                <Avatar name={person.name} className="h-16 w-16" />
+                <Avatar name={person.name} src={person.image} className="h-16 w-16" />
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <h3 className="type-h4 font-medium">{person.name}</h3>
                     <Badge tone="info">{person.role}</Badge>
                   </div>
-                  <p className="type-body text-text-secondary mb-2">{person.description}</p>
+                  <p className="type-body text-text-secondary mb-2">
+                    {person.role === "Chairperson — Period I"
+                      ? "Sets strategic direction and makes organizational decisions."
+                      : "Coordinates execution, monitoring, and program delivery."}
+                  </p>
                   <div className="flex items-center gap-2 text-sm text-text-muted">
                     <UsersIcon className="size-3" />
                     <span>Leadership</span>
+                    <span className="text-border">·</span>
+                    <span>Team: {person.team}</span>
                   </div>
                 </div>
               </div>
@@ -189,22 +92,34 @@ export default function Page() {
         </div>
       </section>
 
-      {/* Members Section */}
+      {/* Teams Section */}
       <section className="mb-12">
-        <h2 className="type-h3 font-medium mb-6">Members</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {members.map((member) => (
-            <Card key={member.name} className="p-4">
-              <div className="flex items-start gap-3">
-                <Avatar name={member.name} className="h-12 w-12" />
-                <div className="flex-1 min-w-0">
-                  <h3 className="type-h4 font-medium truncate">{member.name}</h3>
-                  <Badge tone="neutral" className="text-xs mt-1">{member.role}</Badge>
-                  <p className="type-caption text-text-muted mt-1 truncate">{member.description}</p>
+        <h2 className="type-h3 font-medium mb-6">Teams</h2>
+        <div className="grid gap-6 md:grid-cols-3">
+          {(["Team 1", "Team 2", "Team 3"] as const).map((teamName) => {
+            const teamMembers = teams[teamName];
+            return (
+              <Card key={teamName} className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-ncd-electric/20 text-ncd-electric">
+                    <Users className="size-5" />
+                  </div>
+                  <h3 className="type-h4 font-medium">{teamName}</h3>
                 </div>
-              </div>
-            </Card>
-          ))}
+                <div className="space-y-3">
+                  {teamMembers.map((member) => (
+                    <div key={member.name} className="flex items-center gap-3">
+                      <Avatar name={member.name} src={member.image} className="h-10 w-10" />
+                      <div className="flex-1 min-w-0">
+                        <h4 className="type-small font-medium truncate">{member.name}</h4>
+                        <p className="type-caption text-text-muted truncate">NPM: {member.npm}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            );
+          })}
         </div>
       </section>
 
@@ -212,7 +127,7 @@ export default function Page() {
       <section className="mb-12">
         <h2 className="type-h3 font-medium mb-6">Three Permanent Divisions</h2>
         <div className="grid gap-6 md:grid-cols-3">
-          {divisions.map((division) => (
+          {divisionInfo.map((division) => (
             <Card key={division.name} className="p-6 h-full">
               <div className="flex items-center gap-3 mb-4">
                 <div className={`flex h-10 w-10 items-center justify-center rounded-md ${division.color}`}>
@@ -220,7 +135,7 @@ export default function Page() {
                 </div>
                 <div>
                   <h3 className="type-h4 font-medium">{division.name}</h3>
-                  <p className="type-caption text-text-muted">Ketua: {division.lead.name}</p>
+                  <p className="type-caption text-text-muted">Division Lead: {division.lead.name}</p>
                 </div>
               </div>
               <p className="type-body text-text-secondary mb-4">{division.description}</p>
@@ -234,7 +149,7 @@ export default function Page() {
               <div className="pt-4 border-t border-border">
                 <div className="flex items-center gap-2 text-sm text-text-muted">
                   <UsersIcon className="size-3" />
-                  <span>Ketua Divisi: {division.lead.name}</span>
+                  <span>Division Lead: {division.lead.name}</span>
                 </div>
               </div>
             </Card>
@@ -251,6 +166,28 @@ export default function Page() {
               <div className="text-4xl mb-3">{system.icon}</div>
               <h3 className="type-h4 font-medium mb-2">{system.name}</h3>
               <p className="type-small text-text-secondary">{system.description}</p>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* Members Directory */}
+      <section className="mb-12">
+        <h2 className="type-h3 font-medium mb-6">All Members ({members.length})</h2>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {members.map((member) => (
+            <Card key={member.name} className="p-4">
+              <div className="flex items-start gap-3">
+                <Avatar name={member.name} src={member.image} className="h-12 w-12" />
+                <div className="flex-1 min-w-0">
+                  <h3 className="type-h4 font-medium truncate">{member.name}</h3>
+                  <div className="flex flex-wrap gap-1.5 mt-1">
+                    <Badge tone="neutral" className="text-xs">{member.role}</Badge>
+                    <Badge tone="neutral" className="text-xs">{member.team}</Badge>
+                  </div>
+                  <p className="type-caption text-text-muted mt-1 truncate">NPM: {member.npm}</p>
+                </div>
+              </div>
             </Card>
           ))}
         </div>

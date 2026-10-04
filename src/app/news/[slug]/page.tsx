@@ -1,21 +1,24 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Users, Clock, Calendar } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Users } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
-import { PageHeader } from "@/components/ui/PageHeader";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Badge } from "@/components/ui/Badge";
 import { formatDate } from "@/lib/utils";
 
-export const metadata: Metadata = {
-  title: "News",
-  description: "Latest news and announcements from NCD",
-  alternates: { canonical: "/news" },
-};
-
-const newsArticles = [
-  {
+const newsArticles: Record<string, {
+  slug: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  date: string;
+  readTime: string;
+  author: string;
+  content: string;
+}> = {
+  "offline-ncd-meeting-october-2026": {
     slug: "offline-ncd-meeting-october-2026",
     title: "Offline NCD Meeting: Organization Structure & Period I Work Program",
     excerpt: "Offline NCD meeting discussing organization structure, Period I leadership, work program, vision, and mission.",
@@ -90,62 +93,79 @@ const newsArticles = [
       </p>
     `,
   },
-];
+};
 
-export default function NewsPage() {
+interface PageProps {
+  params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const resolvedParams = await params;
+  const article = newsArticles[resolvedParams.slug];
+  
+  if (!article) {
+    return { title: "Not Found" };
+  }
+  
+  return {
+    title: article.title,
+    description: article.excerpt,
+    openGraph: {
+      title: article.title,
+      description: article.excerpt,
+      type: "article",
+      publishedTime: article.date,
+      authors: [article.author],
+    },
+  };
+}
+
+export default async function NewsDetailPage({ params }: PageProps) {
+  const resolvedParams = await params;
+  const article = newsArticles[resolvedParams.slug];
+
+  if (!article) {
+    notFound();
+  }
+
   return (
-    <Container className="py-8 md:py-12">
+    <Container className="py-8 md:py-12 max-w-3xl">
       <Breadcrumb items={[
         { label: "Home", href: "/" },
-        { label: "News", href: "/news" }
+        { label: "News", href: "/news" },
+        { label: article.title, href: `/news/${article.slug}` }
       ]} />
-      <PageHeader
-        title="News"
-        description="Latest announcements and updates from NCD"
-        className="mb-8"
-      />
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {newsArticles.map((article) => (
-          <article key={article.slug}>
-            <Link href={`/news/${article.slug}`}>
-              <Card className="h-full flex flex-col overflow-hidden group">
-                <div className="relative h-40 bg-gradient-to-br from-ncd-electric/20 to-ncd-violet/20 flex items-center justify-center">
-                  <span className="type-display font-medium text-ncd-electric/50">NEWS</span>
-                </div>
-                <div className="p-6 flex flex-col flex-1">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Badge tone="info">{article.category}</Badge>
-                    <time className="type-caption text-text-muted">{formatDate(article.date)}</time>
-                  </div>
-                  <h2 className="type-h4 font-medium mb-2 line-clamp-2 group-hover:text-ncd-electric transition-colors">
-                    {article.title}
-                  </h2>
-                  <p className="type-small text-text-secondary mb-4 line-clamp-3 flex-1">
-                    {article.excerpt}
-                  </p>
-                  <div className="flex items-center gap-2 text-text-muted type-caption mt-auto pt-4 border-t border-border">
-                    <span className="flex items-center gap-1">
-                      <Users className="size-3" />
-                      {article.author}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="size-3" />
-                      {article.readTime}
-                    </span>
-                  </div>
-                </div>
-              </Card>
-            </Link>
-          </article>
-        ))}
-      </div>
+      <article>
+        <header className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <Badge tone="info">{article.category}</Badge>
+            <time className="type-caption text-text-muted">{formatDate(article.date)}</time>
+          </div>
+          <h1 className="type-h1 font-medium mb-4">{article.title}</h1>
+          <div className="flex items-center gap-4 text-text-muted type-caption">
+            <span className="flex items-center gap-1">
+              <Users className="size-3" />
+              {article.author}
+            </span>
+            <span className="flex items-center gap-1">
+              <Clock className="size-3" />
+              {article.readTime}
+            </span>
+          </div>
+        </header>
 
-      {newsArticles.length === 0 && (
-        <div className="mt-8 text-center">
-          <p className="type-body text-text-secondary">No news articles yet.</p>
+        <div className="prose prose-invert max-w-none">
+          <div dangerouslySetInnerHTML={{ __html: article.content }} />
         </div>
-      )}
+
+        <div className="mt-12 pt-8 border-t border-border">
+          <Link href="/news" className="inline-flex items-center gap-2 text-ncd-electric hover:underline type-body font-medium">
+            <ArrowLeft className="size-4" />
+            Back to News
+          </Link>
+        </div>
+      </article>
     </Container>
   );
 }

@@ -1,19 +1,22 @@
 "use client";
 
-import { Mail, Award, Calendar, Settings, LogOut } from "lucide-react";
+import { Mail, Award, Calendar, Settings, LogOut, Users, Building2 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Avatar } from "@/components/ui/Avatar";
+import { Badge } from "@/components/ui/Badge";
 import { useAuth } from "@/lib/auth";
 import { formatDate } from "@/lib/utils";
+import { getMemberByEmail } from "@/data/members";
 
 export default function ProfilePage() {
-  const { user, profile, loading, signOut } = useAuth();
+  const { user, profile, status, signOut } = useAuth();
+  const memberData = user ? getMemberByEmail(user.email ?? "") : null;
 
-  if (loading) {
+  if (status === "checking") {
     return (
       <Container className="py-8 md:py-12">
         <Breadcrumb items={[
@@ -70,6 +73,13 @@ export default function ProfilePage() {
               <Award className="size-3" />
               {roleLabels[profile.role] ?? profile.role}
             </span>
+
+            {memberData && (
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                <Badge tone="neutral" className="text-xs">{memberData.team}</Badge>
+                <Badge tone="info" className="text-xs">{memberData.division}</Badge>
+              </div>
+            )}
           </div>
 
           <div className="mt-6 border-t border-border pt-6 space-y-3">
@@ -86,6 +96,22 @@ export default function ProfilePage() {
                 <Settings className="size-4 text-text-muted" />
                 <span className="text-text-secondary">Updated {formatDate(profile.updated_at)}</span>
               </div>
+            )}
+            {memberData && (
+              <>
+                <div className="flex items-center gap-3 text-sm">
+                  <Users className="size-4 text-text-muted" />
+                  <span className="text-text-secondary">Team: {memberData.team}</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm">
+                  <Building2 className="size-4 text-text-muted" />
+                  <span className="text-text-secondary">Division: {memberData.division}</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm">
+                  <Award className="size-4 text-text-muted" />
+                  <span className="text-text-secondary">NPM: {memberData.npm}</span>
+                </div>
+              </>
             )}
           </div>
 
@@ -123,6 +149,22 @@ export default function ProfilePage() {
               <dt className="type-caption text-text-muted">Avatar URL</dt>
               <dd className="type-small text-text-secondary break-all">{profile.avatar_url ?? "Not set"}</dd>
             </div>
+            {memberData && (
+              <>
+                <div>
+                  <dt className="type-caption text-text-muted">Team</dt>
+                  <dd className="type-small font-medium text-text-primary">{memberData.team}</dd>
+                </div>
+                <div>
+                  <dt className="type-caption text-text-muted">Division</dt>
+                  <dd className="type-small font-medium text-text-primary">{memberData.division}</dd>
+                </div>
+                <div>
+                  <dt className="type-caption text-text-muted">NPM</dt>
+                  <dd className="type-small font-mono text-text-primary">{memberData.npm}</dd>
+                </div>
+              </>
+            )}
           </dl>
         </Card>
       </div>

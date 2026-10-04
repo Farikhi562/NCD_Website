@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { useAuth } from "@/lib/auth";
 import { formatDate } from "@/lib/utils";
+import { members, leadership, teams } from "@/data/members";
 
 const appModules = [
   { name: "People", href: "/app/people", icon: Users, text: "Members, skills, interests, and learning targets." },
@@ -17,16 +18,13 @@ const appModules = [
   { name: "Competitions", href: "/app/competitions", icon: Trophy, text: "Competition Radar and Briefs." },
   { name: "Activities", href: "/app/activities", icon: Calendar, text: "Dated record of NCD activities and outcomes." },
   { name: "Knowledge", href: "/app/knowledge", icon: BookOpen, text: "Lessons, tutorials, and post-mortems." },
-  { name: "Kas", href: "/app/kas", icon: Wallet, text: "Transparent financial tracking for NCD." },
-  { name: "Squads", href: "/app/squads", icon: Users, text: "Cross-functional working groups." },
-  { name: "Growth", href: "/app/growth", icon: BookOpen, text: "Personal and organizational growth tracking." },
-  { name: "Documentation", href: "/app/documentation", icon: FolderKanban, text: "Internal documentation and templates." },
+  { name: "Transparency", href: "/app/transparency", icon: Wallet, text: "Transparent financial tracking for NCD." },
 ] as const;
 
 export default function DashboardPage() {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, status } = useAuth();
 
-  if (loading) {
+  if (status === "checking") {
     return (
       <Container className="py-8 md:py-12">
         <Breadcrumb items={[{ label: "Dashboard", href: "/app/dashboard" }]} />
@@ -59,11 +57,11 @@ export default function DashboardPage() {
 
   const displayName = profile.full_name ?? user.email?.split("@")[0] ?? "Member";
 
-  // Sample news for dashboard (in real app, this would come from API)
+  // Latest news from the news page
   const latestNews = [
     {
       id: "1",
-      title: "Meeting Luring NCD: Pemilihan Ketua Divisi",
+      title: "Offline NCD Meeting: Organization Structure & Period I Work Program",
       date: "2026-10-12",
       category: "Organization",
     },
@@ -94,11 +92,11 @@ export default function DashboardPage() {
           <Card className="p-6">
             <div className="flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-ncd-electric/20 text-ncd-electric">
-                <Sparkles className="size-6" />
+                <Users className="size-6" />
               </div>
               <div>
                 <p className="type-caption text-text-muted">Total Members</p>
-                <p className="type-h3 font-medium text-text-primary">~30</p>
+                <p className="type-h3 font-medium text-text-primary">{members.length}</p>
               </div>
             </div>
           </Card>
@@ -158,12 +156,34 @@ export default function DashboardPage() {
                   </div>
                   <h3 className="type-h4 font-medium mb-2 group-hover:text-ncd-electric transition-colors">{news.title}</h3>
                   <p className="type-small text-text-secondary line-clamp-2">
-                    Rapat kerja luring NCD Periode I untuk memilih ketua ketiga divisi serta menyampaikan program kerja, visi, dan misi kepengurusan Mirza–Fauzan.
+                    Offline NCD meeting discussing organization structure, Period I leadership, work program, vision, and mission.
                   </p>
                 </div>
               </Card>
             </Link>
           ))}
+        </div>
+      </section>
+
+      {/* Organization Snapshot */}
+      <section className="mb-12">
+        <h2 className="type-h3 font-medium mb-6">Organization Snapshot</h2>
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card className="p-6">
+            <p className="type-caption text-text-muted mb-1">Leadership</p>
+            <p className="type-h2 font-medium text-text-primary">{leadership.length}</p>
+            <p className="type-small text-text-secondary mt-1">Chairperson & Vice Chairperson</p>
+          </Card>
+          <Card className="p-6">
+            <p className="type-caption text-text-muted mb-1">Teams</p>
+            <p className="type-h2 font-medium text-text-primary">3</p>
+            <p className="type-small text-text-secondary mt-1">Team 1, Team 2, Team 3</p>
+          </Card>
+          <Card className="p-6">
+            <p className="type-caption text-text-muted mb-1">Divisions</p>
+            <p className="type-h2 font-medium text-text-primary">3</p>
+            <p className="type-small text-text-secondary mt-1">People & Culture, Competition & Strategy, Project & Development</p>
+          </Card>
         </div>
       </section>
 

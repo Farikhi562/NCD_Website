@@ -42,7 +42,8 @@ export default function LoginPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      // Check if user needs onboarding
+      // Successful login - redirect will be handled by middleware/auth state change
+      // Check onboarding status and redirect appropriately
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: profile } = await supabase
@@ -50,9 +51,9 @@ export default function LoginPage() {
           .select("onboarding_completed")
           .eq("id", user.id)
           .single();
-        
+
         if (profile && !profile.onboarding_completed) {
-          router.push("/onboarding");
+          router.push("/app/onboarding");
         } else {
           router.push(redirectTo);
         }
