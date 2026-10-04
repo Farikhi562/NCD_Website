@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Users, FolderKanban, Trophy, BookOpen, Calendar, Wallet, Newspaper, Sparkles, Box, Wifi, Hand, MapPin, Clock } from "lucide-react";
+import { Users, FolderKanban, Trophy, BookOpen, Calendar, Wallet, Newspaper, Box, Wifi, Hand, MapPin, Clock } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";

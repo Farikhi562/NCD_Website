@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Mail,
   Award,
@@ -13,6 +13,7 @@ import {
   Save,
   X,
   Edit2,
+  Check,
 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
@@ -21,7 +22,6 @@ import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
-import { InputWithIcon } from "@/components/ui/Field";
 import { useAuth } from "@/lib/auth";
 import { formatDate } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -42,26 +42,29 @@ export default function ProfilePage() {
   const supabase = createClient();
 
   const [editMode, setEditMode] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  // Form state
+  // Form state - initialize from profile
   const [formData, setFormData] = useState({
-    full_name: "",
-    bio: "",
-    npm: "",
-    interests: [] as string[],
+    full_name: profile?.full_name || "",
+    bio: profile?.bio || "",
+    npm: profile?.npm || "",
+    interests: profile?.interests || [],
   });
 
   // Avatar upload state
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(profile?.avatar_url || null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
-  // Load profile data into form when profile changes
+  // Track if form has been initialized from profile
+  const initializedRef = useRef(false);
+
+  // Load profile data into form when profile changes (only once on mount)
   useEffect(() => {
-    if (profile) {
+    if (profile && !initializedRef.current) {
+      initializedRef.current = true;
       setFormData({
         full_name: profile.full_name || "",
         bio: profile.bio || "",
@@ -77,13 +80,14 @@ export default function ProfilePage() {
     team: string | null;
     division: string | null;
     npm: string | null;
+    org_role: string | null;
   } | null>(null);
 
   useEffect(() => {
     if (user?.id) {
       supabase
         .from("members")
-        .select("team, division, npm")
+        .select("team, division, npm, org_role")
         .eq("id", user.id)
         .single()
         .then(({ data }) => {
@@ -284,8 +288,6 @@ export default function ProfilePage() {
     );
   }
 
-  const displayName = profile.full_name ?? user.email?.split("@")[0] ?? "Member";
-
   return (
     <Container className="py-8 md:py-12">
       <Breadcrumb items={[
@@ -362,10 +364,10 @@ export default function ProfilePage() {
             <h2 className="type-h3 font-medium">{formData.full_name || profile.full_name || "Unnamed User"}</h2>
             <p className="type-small text-text-muted mt-1">{user.email}</p>
 
-            {/* Role badge - read-only */}
+            {/* Role badge - read-only - show organizational role from members table */}
             <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-border bg-ncd-surface/50 px-3 py-1 type-caption font-medium text-text-secondary">
               <Award className="size-3" />
-              {roleLabels[profile.role] ?? profile.role}
+              {memberData?.org_role ?? roleLabels[profile.role] ?? profile.role}
             </span>
 
             {/* Organization info from members table - read-only */}
@@ -528,7 +530,7 @@ export default function ProfilePage() {
                   </div>
                   <div>
                     <dt className="type-caption text-text-muted">Role</dt>
-                    <dd className="type-small font-medium text-text-primary">{roleLabels[profile.role] ?? profile.role}</dd>
+                    <dd className="type-small font-medium text-text-primary">{memberData.org_role || "Not Assigned"}</dd>
                   </div>
                 </dl>
                 <p className="mt-3 type-caption text-text-muted">

@@ -173,10 +173,10 @@ export default function PeoplePage() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <h3 className="type-h4 font-medium">{person.full_name}</h3>
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-ncd-electric/30 bg-ncd-electric/10 text-ncd-electric type-caption font-medium">{person.role}</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-ncd-electric/30 bg-ncd-electric/10 text-ncd-electric type-caption font-medium">{person.org_role || "Not Assigned"}</span>
                   </div>
                   <p className="type-body text-text-secondary mb-2">
-                    {person.role === "Chairperson — Period I"
+                    {person.org_role === "Chairperson — Period I"
                       ? "Sets strategic direction and makes organizational decisions."
                       : "Coordinates execution, monitoring, and program delivery."}
                   </p>

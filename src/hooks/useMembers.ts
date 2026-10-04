@@ -26,7 +26,7 @@ export function useMembers() {
         } else {
           setMembers((data as Member[]) || []);
         }
-      } catch (err) {
+      } catch {
         setError("Failed to load members");
       } finally {
         setLoading(false);
@@ -60,7 +60,7 @@ export function useLeadership() {
         } else {
           setLeadership((data as Member[]) || []);
         }
-      } catch (err) {
+      } catch {
         setError("Failed to load leadership");
       } finally {
         setLoading(false);
@@ -97,7 +97,7 @@ export function useDivisionLeads() {
           });
           setLeads(leadMap);
         }
-      } catch (err) {
+      } catch {
         setError("Failed to load division leads");
       } finally {
         setLoading(false);

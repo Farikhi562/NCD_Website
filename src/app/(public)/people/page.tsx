@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Users, Award, Building2, Users as UsersIcon } from "lucide-react";
+import { Users, Users as UsersIcon } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Card } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -64,10 +64,10 @@ export default async function Page() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <h3 className="type-h4 font-medium">{person.full_name}</h3>
-                    <Badge tone="info">{person.role}</Badge>
+                    <Badge tone="info">{person.org_role || person.role}</Badge>
                   </div>
                   <p className="type-body text-text-secondary mb-2">
-                    {person.role === "Chairperson — Period I"
+                    {person.org_role === "Chairperson — Period I"
                       ? "Sets strategic direction and makes organizational decisions."
                       : "Coordinates execution, monitoring, and program delivery."}
                   </p>
@@ -174,7 +174,7 @@ export default async function Page() {
                 <div className="flex-1 min-w-0">
                   <h3 className="type-h4 font-medium truncate">{member.full_name}</h3>
                   <div className="flex flex-wrap gap-1.5 mt-1">
-                    <Badge tone="neutral" className="text-xs">{member.role}</Badge>
+                    <Badge tone="neutral" className="text-xs">{member.org_role || member.role}</Badge>
                     <Badge tone="neutral" className="text-xs">{member.team}</Badge>
                   </div>
                   <p className="type-caption text-text-muted mt-1 truncate">NPM: {member.npm || "Not set"}</p>
