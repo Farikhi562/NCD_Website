@@ -53,8 +53,9 @@ export async function middleware(request: NextRequest) {
     "/news",
     "/login",
     "/register",
-    "/auth/reset-password",
+    "/reset-password", // real route; "/auth/reset-password" does not exist (404)
     "/auth/confirm",
+    "/nexa", // public page linked from the site nav and footer
     "/terms",
   ];
 
