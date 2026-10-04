@@ -8,19 +8,58 @@ import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { useState } from "react";
-import { members, leadership, divisions } from "@/data/members";
+import { useMembers, useLeadership, useDivisionLeads } from "@/hooks/useMembers";
 
 export default function PeoplePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterTeam, setFilterTeam] = useState<string>("all");
   const [filterDivision, setFilterDivision] = useState<string>("all");
 
+  const { members, loading: membersLoading, error: membersError } = useMembers();
+  const { leadership, loading: leadershipLoading, error: leadershipError } = useLeadership();
+  const { leads, loading: leadsLoading } = useDivisionLeads();
+
+  const loading = membersLoading || leadershipLoading || leadsLoading;
+
   const filteredMembers = members.filter((member) => {
-    const matchesSearch = member.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = member.full_name?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesTeam = filterTeam === "all" || member.team === filterTeam;
     const matchesDivision = filterDivision === "all" || member.division === filterDivision;
     return matchesSearch && matchesTeam && matchesDivision;
   });
+
+  if (loading) {
+    return (
+      <Container className="py-8 md:py-12">
+        <Breadcrumb items={[
+          { label: "Dashboard", href: "/app/dashboard" },
+          { label: "People", href: "/app/people" }
+        ]} />
+        <PageHeader title="People" description="Loading..." className="mb-8" />
+        <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {[...Array(12)].map((_, i) => (
+            <Card key={i} className="p-4">
+              <div className="skeleton h-12 w-12 mb-3" />
+              <div className="skeleton h-5 w-3/4 mb-2" />
+              <div className="skeleton h-4 w-1/2" />
+            </Card>
+          ))}
+        </div>
+      </Container>
+    );
+  }
+
+  if (membersError || leadershipError) {
+    return (
+      <Container className="py-8 md:py-12">
+        <Breadcrumb items={[
+          { label: "Dashboard", href: "/app/dashboard" },
+          { label: "People", href: "/app/people" }
+        ]} />
+        <PageHeader title="People" description="Failed to load members data." className="mt-8" />
+      </Container>
+    );
+  }
 
   return (
     <Container className="py-8 md:py-12">
@@ -122,13 +161,19 @@ export default function PeoplePage() {
         <h2 className="type-h3 font-medium mb-6">Leadership — Period I</h2>
         <div className="grid gap-4 md:grid-cols-2">
           {leadership.map((person) => (
-            <Card key={person.name} className="p-6">
+            <Card key={person.id} className="p-6">
               <div className="flex items-start gap-4">
-                <Avatar name={person.name} src={person.image} className="h-16 w-16" />
+                <div className="h-16 w-16 rounded-full bg-ncd-electric/20 flex items-center justify-center text-ncd-electric type-h3 font-medium">
+                  {person.avatar_url ? (
+                    <img src={person.avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
+                  ) : (
+                    person.full_name?.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("") || "?"
+                  )}
+                </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <h3 className="type-h4 font-medium">{person.name}</h3>
-                    <Badge tone="info">{person.role}</Badge>
+                    <h3 className="type-h4 font-medium">{person.full_name}</h3>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-ncd-electric/30 bg-ncd-electric/10 text-ncd-electric type-caption font-medium">{person.role}</span>
                   </div>
                   <p className="type-body text-text-secondary mb-2">
                     {person.role === "Chairperson — Period I"
@@ -152,28 +197,24 @@ export default function PeoplePage() {
       <section className="mb-10">
         <h2 className="type-h3 font-medium mb-6">Divisions</h2>
         <div className="grid gap-4 md:grid-cols-3">
-          {Object.entries(divisions).map(([divisionName, divisionMembers]) => (
-            <Card key={divisionName} className="p-6 h-full">
+          {[
+            { name: "People & Culture", description: "Manages member development, onboarding, networking, and personal growth." },
+            { name: "Competition & Strategy", description: "Manages Competition Radar, Competition Brief, Competition Day, and Retrospective." },
+            { name: "Project & Development", description: "Manages Project Lab, Project Clinic, Squad formation, and Demo Day." },
+          ].map((division) => (
+            <Card key={division.name} className="p-6 h-full">
               <div className="flex items-center gap-3 mb-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-md bg-ncd-electric/20 text-ncd-electric">
                   <Users className="size-5" />
                 </div>
                 <div>
-                  <h3 className="type-h4 font-medium">{divisionName}</h3>
-                  <p className="type-caption text-text-muted">Lead: {divisionMembers.find(m => m.role === "Division Lead")?.name ?? "Not Assigned"}</p>
+                  <h3 className="type-h4 font-medium">{division.name}</h3>
+                  <p className="type-caption text-text-muted">Lead: {leads[division.name] || "Not Assigned"}</p>
                 </div>
               </div>
-              <p className="type-body text-text-secondary mb-4">
-                {divisionName === "People & Culture"
-                  ? "Manages member development, onboarding, networking, and personal growth."
-                  : divisionName === "Competition & Strategy"
-                  ? "Manages Competition Radar, Competition Brief, Competition Day, and Retrospective."
-                  : divisionName === "Project & Development"
-                  ? "Manages Project Lab, Project Clinic, Squad formation, and Demo Day."
-                  : "Division assignment pending."}
-              </p>
+              <p className="type-body text-text-secondary mb-4">{division.description}</p>
               <div className="pt-4 border-t border-border">
-                <p className="type-caption text-text-muted">Division Lead: {divisionMembers.find(m => m.role === "Division Lead")?.name ?? "Not Assigned"}</p>
+                <p className="type-caption text-text-muted">Division Lead: {leads[division.name] || "Not Assigned"}</p>
               </div>
             </Card>
           ))}
@@ -197,17 +238,23 @@ export default function PeoplePage() {
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredMembers.map((member) => (
-            <Card key={member.name} className="p-4 hover:border-ncd-electric/50 hover:bg-ncd-hover transition-colors">
+            <Card key={member.id} className="p-4 hover:border-ncd-electric/50 hover:bg-ncd-hover transition-colors">
               <div className="flex items-start gap-3">
-                <Avatar name={member.name} src={member.image} className="h-12 w-12" />
+                <div className="h-12 w-12 rounded-full bg-ncd-electric/20 flex items-center justify-center text-ncd-electric type-h4 font-medium">
+                  {member.avatar_url ? (
+                    <img src={member.avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
+                  ) : (
+                    member.full_name?.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("") || "?"
+                  )}
+                </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="type-h4 font-medium truncate">{member.name}</h3>
+                  <h3 className="type-h4 font-medium truncate">{member.full_name}</h3>
                   <div className="flex flex-wrap gap-1.5 mt-1">
-                    <Badge tone="neutral" className="text-xs">{member.role}</Badge>
-                    <Badge tone="neutral" className="text-xs">{member.team}</Badge>
-                    <Badge tone="neutral" className="text-xs">{member.division}</Badge>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-border bg-ncd-surface/50 type-caption text-text-secondary">{member.role}</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-border bg-ncd-surface/50 type-caption text-text-secondary">{member.team}</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-border bg-ncd-surface/50 type-caption text-text-secondary">{member.division}</span>
                   </div>
-                  <p className="type-caption text-text-muted mt-1 truncate">NPM: {member.npm}</p>
+                  <p className="type-caption text-text-muted mt-1 truncate">NPM: {member.npm || "Not set"}</p>
                 </div>
               </div>
             </Card>

@@ -5,12 +5,25 @@
 
 export type UserRole = "member" | "admin" | "treasurer";
 
+// Organizational roles within NCD
+export type OrgRole = 
+  | "Member" 
+  | "Chairperson — Period I" 
+  | "Vice Chairperson — Period I" 
+  | "Division Lead";
+
 export interface Profile {
   id: string; // matches auth.users.id
   full_name: string | null;
   avatar_url: string | null;
   role: UserRole;
   onboarding_completed: boolean;
+  npm: string | null;
+  bio: string | null;
+  division: string | null;
+  team: string | null;
+  email: string | null;
+  interests: string[] | null;
   created_at: string;
   updated_at: string;
 }
@@ -24,6 +37,8 @@ export interface Member extends Profile {
   interests: string[] | null;
   learning_targets: string[] | null;
   is_public: boolean;
+  // Organizational role (separate from auth role)
+  org_role: OrgRole | null;
 }
 
 export interface Activity {

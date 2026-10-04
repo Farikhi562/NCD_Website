@@ -5,7 +5,7 @@ const sizes = { 24: "size-6 text-[10px]", 32: "size-8 text-xs", 40: "size-10 tex
 
 type AvatarProps = {
   name: string;
-  src?: string;
+  src?: string | null;
   size?: keyof typeof sizes;
   className?: string;
 };

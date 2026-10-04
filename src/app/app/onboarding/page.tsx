@@ -60,6 +60,7 @@ export default function OnboardingPage() {
   // Profile state
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
+  const [npm, setNpm] = useState("");
   const [interests, setInterests] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,8 +75,7 @@ export default function OnboardingPage() {
   // Check if user already completed onboarding
   useEffect(() => {
     if (status === "authenticated" && user) {
-      // Check if onboarding was already completed via profile
-      // This will be handled by the redirect logic in login
+      // This will be handled by the redirect logic in middleware/login
     }
   }, [status, user]);
 
@@ -121,6 +121,9 @@ export default function OnboardingPage() {
         .from("profiles")
         .update({
           full_name: displayName.trim(),
+          bio: bio.trim() || null,
+          npm: npm.trim() || null,
+          interests: interests.length > 0 ? interests : null,
           onboarding_completed: true,
         })
         .eq("id", user.id);
@@ -132,13 +135,16 @@ export default function OnboardingPage() {
         return;
       }
 
-      // Try to insert into members table if it exists
+      // Also upsert into members table for organization directory
       const { error: memberError } = await supabase
         .from("members")
         .upsert({
           id: user.id,
           email: user.email,
           full_name: displayName.trim(),
+          npm: npm.trim() || null,
+          bio: bio.trim() || null,
+          interests: interests.length > 0 ? interests : null,
           is_public: true,
         });
 
@@ -282,6 +288,20 @@ export default function OnboardingPage() {
           maxLength={300}
         />
         <p className="mt-1 type-caption text-text-muted text-right">{bio.length}/300</p>
+      </div>
+
+      <div className="mt-4">
+        <InputWithIcon
+          id="onboarding-npm"
+          label="NPM (Student ID)"
+          type="text"
+          value={npm}
+          onChange={(e) => setNpm(e.target.value)}
+          placeholder="e.g., 50425672"
+          icon={<Sparkles className="size-4" />}
+          disabled={loading}
+          autoComplete="off"
+        />
       </div>
 
       {error && (

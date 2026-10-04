@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Users, FolderKanban, Trophy, BookOpen, Calendar, Wallet, Newspaper, Box, Wifi, Hand, MapPin, Clock } from "lucide-react";
+import { Users, FolderKanban, Trophy, BookOpen, Calendar, Wallet, Newspaper, Sparkles, Box, Wifi, Hand, MapPin, Clock } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -88,6 +88,7 @@ export default function DashboardPage() {
   }
 
   const displayName = profile.full_name ?? user.email?.split("@")[0] ?? "Member";
+  const firstName = profile.full_name?.split(" ")[0] ?? displayName;
 
   // Time-based greeting
   const hour = new Date().getHours();
@@ -101,7 +102,7 @@ export default function DashboardPage() {
       <section className="mb-12">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="type-h1 font-medium">{greeting}, {displayName}.</h1>
+            <h1 className="type-h1 font-medium">{greeting}, {firstName}.</h1>
             <p className="type-body text-text-secondary mt-1">Here&apos;s what&apos;s happening in NCD.</p>
           </div>
           <div className="flex items-center gap-3">
@@ -279,7 +280,7 @@ export default function DashboardPage() {
             <Card className="p-4 hover:border-ncd-electric/50 hover:bg-ncd-hover transition-colors group">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-warning/20 text-warning group-hover:bg-warning group-hover:text-text-primary transition-colors">
-                  <Avatar name={displayName} className="h-5 w-5" />
+                  <Avatar name={profile.full_name ?? user.email ?? "User"} className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="type-body font-medium text-text-primary">Profile</p>

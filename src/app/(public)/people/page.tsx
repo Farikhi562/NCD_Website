@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
-import { members, leadership, teams } from "@/data/members";
+import { getMembers, getLeadership, getDivisions, getDivisionLeads } from "@/lib/people";
 
 export const metadata: Metadata = {
   title: "People",
@@ -14,41 +14,33 @@ export const metadata: Metadata = {
   alternates: { canonical: "/people" },
 };
 
-const divisionInfo = [
-  {
-    name: "People & Culture",
-    description: "Manages member development, onboarding, networking, and personal growth.",
-    programs: ["NCD Discover", "NCD Connect", "NCD Grow", "Growth Map"],
-    lead: { name: "Not Assigned" },
-    icon: Users,
-    color: "bg-ncd-electric/20 text-ncd-electric",
-  },
-  {
-    name: "Competition & Strategy",
-    description: "Manages Competition Radar, Competition Brief, Competition Day, and Retrospective.",
-    programs: ["Competition Radar", "Competition Brief", "Competition Day", "Retrospective"],
-    lead: { name: "Not Assigned" },
-    icon: Award,
-    color: "bg-success/20 text-success",
-  },
-  {
-    name: "Project & Development",
-    description: "Manages Project Lab, Project Clinic, Squad formation, and Demo Day.",
-    programs: ["Project Lab", "Project Clinic", "Squad Formation", "Demo Day"],
-    lead: { name: "Not Assigned" },
-    icon: Building2,
-    color: "bg-warning/20 text-warning",
-  },
-];
+export default async function Page() {
+  const [members, leadership, divisions, divisionLeads] = await Promise.all([
+    getMembers(),
+    getLeadership(),
+    getDivisions(),
+    getDivisionLeads(),
+  ]);
 
-const supportSystems = [
-  { name: "NCD Kas", description: "Shared fund and transparent recording system", icon: "💰" },
-  { name: "NCD Website", description: "Digital home and digital infrastructure of NCD", icon: "🌐" },
-  { name: "Documentation", description: "Activity documentation, knowledge base, and archive", icon: "📚" },
-  { name: "Knowledge Base", description: "Sharing materials, tutorials, insights, post-mortems", icon: "🧠" },
-];
+  const divisionInfo = divisions.map((div) => ({
+    ...div,
+    lead: { name: divisionLeads[div.name] || "Not Assigned" },
+  }));
 
-export default function Page() {
+  const supportSystems = [
+    { name: "NCD Kas", description: "Shared fund and transparent recording system", icon: "💰" },
+    { name: "NCD Website", description: "Digital home and digital infrastructure of NCD", icon: "🌐" },
+    { name: "Documentation", description: "Activity documentation, knowledge base, and archive", icon: "📚" },
+    { name: "Knowledge Base", description: "Sharing materials, tutorials, insights, post-mortems", icon: "🧠" },
+  ];
+
+  // Group members by team
+  const teams = {
+    "Team 1": members.filter((m) => m.team === "Team 1"),
+    "Team 2": members.filter((m) => m.team === "Team 2"),
+    "Team 3": members.filter((m) => m.team === "Team 3"),
+  };
+
   return (
     <Container className="py-8 md:py-12">
       <Breadcrumb items={[
@@ -66,12 +58,12 @@ export default function Page() {
         <h2 className="type-h3 font-medium mb-6">Leadership — Period I</h2>
         <div className="grid gap-6 md:grid-cols-2">
           {leadership.map((person) => (
-            <Card key={person.name} className="p-6">
+            <Card key={person.id} className="p-6">
               <div className="flex items-start gap-4">
-                <Avatar name={person.name} src={person.image} className="h-16 w-16" />
+                <Avatar name={person.full_name || "Unknown"} src={person.avatar_url} className="h-16 w-16" />
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <h3 className="type-h4 font-medium">{person.name}</h3>
+                    <h3 className="type-h4 font-medium">{person.full_name}</h3>
                     <Badge tone="info">{person.role}</Badge>
                   </div>
                   <p className="type-body text-text-secondary mb-2">
@@ -108,11 +100,11 @@ export default function Page() {
                 </div>
                 <div className="space-y-3">
                   {teamMembers.map((member) => (
-                    <div key={member.name} className="flex items-center gap-3">
-                      <Avatar name={member.name} src={member.image} className="h-10 w-10" />
+                    <div key={member.id} className="flex items-center gap-3">
+                      <Avatar name={member.full_name || "Unknown"} src={member.avatar_url} className="h-10 w-10" />
                       <div className="flex-1 min-w-0">
-                        <h4 className="type-small font-medium truncate">{member.name}</h4>
-                        <p className="type-caption text-text-muted truncate">NPM: {member.npm}</p>
+                        <h4 className="type-small font-medium truncate">{member.full_name}</h4>
+                        <p className="type-caption text-text-muted truncate">NPM: {member.npm || "Not set"}</p>
                       </div>
                     </div>
                   ))}
@@ -176,16 +168,16 @@ export default function Page() {
         <h2 className="type-h3 font-medium mb-6">All Members ({members.length})</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {members.map((member) => (
-            <Card key={member.name} className="p-4">
+            <Card key={member.id} className="p-4">
               <div className="flex items-start gap-3">
-                <Avatar name={member.name} src={member.image} className="h-12 w-12" />
+                <Avatar name={member.full_name || "Unknown"} src={member.avatar_url} className="h-12 w-12" />
                 <div className="flex-1 min-w-0">
-                  <h3 className="type-h4 font-medium truncate">{member.name}</h3>
+                  <h3 className="type-h4 font-medium truncate">{member.full_name}</h3>
                   <div className="flex flex-wrap gap-1.5 mt-1">
                     <Badge tone="neutral" className="text-xs">{member.role}</Badge>
                     <Badge tone="neutral" className="text-xs">{member.team}</Badge>
                   </div>
-                  <p className="type-caption text-text-muted mt-1 truncate">NPM: {member.npm}</p>
+                  <p className="type-caption text-text-muted mt-1 truncate">NPM: {member.npm || "Not set"}</p>
                 </div>
               </div>
             </Card>
