@@ -1,6 +1,7 @@
 // src/data/members.ts
 // Canonical member data for NCD — single source of truth
 // Matches the official NCD member list (20 members, 3 teams, 3 divisions, 2 leadership)
+// avatar_url only set for verified existing files in public/images/
 
 export interface Member {
   name: string;
@@ -8,7 +9,7 @@ export interface Member {
   team: "Team 1" | "Team 2" | "Team 3" | "Not Assigned";
   division: "People & Culture" | "Competition & Strategy" | "Project & Development" | "Not Assigned";
   role: "Chairperson — Period I" | "Vice Chairperson — Period I" | "Division Lead" | "Member";
-  image: string;
+  image: string | null;
   email: string;
 }
 
@@ -76,7 +77,7 @@ export const members: Member[] = [
     team: "Team 2",
     division: "Not Assigned",
     role: "Member",
-    image: "/images/ghazali-syaqih-husein.png",
+    image: null,
     email: "ghazali.syaqih@ncd.id",
   },
   {
@@ -94,7 +95,7 @@ export const members: Member[] = [
     team: "Team 2",
     division: "Not Assigned",
     role: "Member",
-    image: "/images/muhammad-iqbal-fajri.png",
+    image: null,
     email: "muhammad.iqbal@ncd.id",
   },
   {
@@ -161,7 +162,7 @@ export const members: Member[] = [
     team: "Not Assigned",
     division: "Not Assigned",
     role: "Member",
-    image: "/images/placeholder-member.png",
+    image: "/images/muhammad-ferdynand-syah.png",
     email: "muhammad.ferdynand@ncd.id",
   },
   {
@@ -170,7 +171,7 @@ export const members: Member[] = [
     team: "Not Assigned",
     division: "Not Assigned",
     role: "Member",
-    image: "/images/placeholder-member.png",
+    image: "/images/fanny-novianty-lumban-gaol.png",
     email: "fanny.novianty@ncd.id",
   },
   {
@@ -179,7 +180,7 @@ export const members: Member[] = [
     team: "Not Assigned",
     division: "Not Assigned",
     role: "Member",
-    image: "/images/placeholder-member.png",
+    image: null,
     email: "muhammad.raffi@ncd.id",
   },
   {
@@ -188,7 +189,7 @@ export const members: Member[] = [
     team: "Not Assigned",
     division: "Not Assigned",
     role: "Member",
-    image: "/images/placeholder-member.png",
+    image: "/images/farhan-putra-pradhana.png",
     email: "farhan.putra@ncd.id",
   },
   {
@@ -197,7 +198,7 @@ export const members: Member[] = [
     team: "Not Assigned",
     division: "Not Assigned",
     role: "Member",
-    image: "/images/placeholder-member.png",
+    image: null,
     email: "waldan.zubary@ncd.id",
   },
 ];

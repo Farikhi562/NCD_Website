@@ -125,6 +125,7 @@ delete from public.members where npm in (
 );
 
 -- Insert canonical NCD members (20 total: 15 original + 5 new)
+-- avatar_url only set for verified existing files in public/images/
 insert into public.members (id, email, npm, full_name, org_role, division, team, is_public, interests, skills, avatar_url, created_at, updated_at)
 values
   -- Team 1 (UGP-GBIC competition participants)
@@ -136,24 +137,24 @@ values
 
   -- Team 2 (UGP-GBIC competition participants)
   (gen_random_uuid(), 'mochamad.triandra@ncd.id', '50425637', 'Mochamad Triandra Andantyo', 'Member', 'Not Assigned', 'Team 2', true, '{}', '{}', '/images/mochamad-triandra-andantyo.png', now(), now()),
-  (gen_random_uuid(), 'ghazali.syaqih@ncd.id', '10125379', 'Ghazali Syaqih Husein', 'Member', 'Not Assigned', 'Team 2', true, '{}', '{}', '/images/ghazali-syaqih-husein.png', now(), now()),
+  (gen_random_uuid(), 'ghazali.syaqih@ncd.id', '10125379', 'Ghazali Syaqih Husein', 'Member', 'Not Assigned', 'Team 2', true, '{}', '{}', null, now(), now()),
   (gen_random_uuid(), 'putri.aura@ncd.id', '50425998', 'Putri Aura Wening', 'Member', 'Not Assigned', 'Team 2', true, '{}', '{}', '/images/putri-aura-wening.png', now(), now()),
-  (gen_random_uuid(), 'muhammad.iqbal@ncd.id', '50425788', 'Muhammad Iqbal Fajri', 'Member', 'Not Assigned', 'Team 2', true, '{}', '{}', '/images/muhammad-iqbal-fajri.png', now(), now()),
+  (gen_random_uuid(), 'muhammad.iqbal@ncd.id', '50425788', 'Muhammad Iqbal Fajri', 'Member', 'Not Assigned', 'Team 2', true, '{}', '{}', null, now(), now()),
   (gen_random_uuid(), 'chantika.shinta@ncd.id', '10225359', 'Chantika Shinta Sonia', 'Member', 'Not Assigned', 'Team 2', true, '{}', '{}', '/images/chantika-shinta-sonia.png', now(), now()),
 
   -- Team 3 (UGP-GBIC competition participants)
   (gen_random_uuid(), 'deryl.jonathan@ncd.id', '50425267', 'Deryl Jonathan Yofan', 'Member', 'Not Assigned', 'Team 3', true, '{}', '{}', '/images/deryl-jonathan-yofan.png', now(), now()),
-  (gen_random_uuid(), 'rayyan.fathan@ncd.id', '51425098', 'Rayyan Fathan Addani', 'Member', 'Not Assigned', 'Team 3', true, '{}', '{}', '/images/rayyan-fathan-addani.png', now(), now()),
-  (gen_random_uuid(), 'nedri.febrianto@ncd.id', '50425955', 'Nedri Febrianto', 'Member', 'Not Assigned', 'Team 3', true, '{}', '{}', '/images/nedri-febrianto.png', now(), now()),
-  (gen_random_uuid(), 'sri.gunarti@ncd.id', '51425231', 'Sri Gunarti Wijiastuti', 'Member', 'Not Assigned', 'Team 3', true, '{}', '{}', '/images/sri-gunarti-wijiastuti.png', now(), now()),
-  (gen_random_uuid(), 'sheva.putra@ncd.id', '51425218', 'Sheva Putra Firdaus', 'Member', 'Not Assigned', 'Team 3', true, '{}', '{}', '/images/sheva-putra-firdaus.png', now(), now()),
+  (gen_random_uuid(), 'rayyan.fathan@ncd.id', '51425098', 'Rayyan Fathan Addani', 'Member', 'Not Assigned', 'Team 3', true, '{}', '{}', null, now(), now()),
+  (gen_random_uuid(), 'nedri.febrianto@ncd.id', '50425955', 'Nedri Febrianto', 'Member', 'Not Assigned', 'Team 3', true, '{}', '{}', null, now(), now()),
+  (gen_random_uuid(), 'sri.gunarti@ncd.id', '51425231', 'Sri Gunarti Wijiastuti', 'Member', 'Not Assigned', 'Team 3', true, '{}', '{}', null, now(), now()),
+  (gen_random_uuid(), 'sheva.putra@ncd.id', '51425218', 'Sheva Putra Firdaus', 'Member', 'Not Assigned', 'Team 3', true, '{}', '{}', null, now(), now()),
 
   -- Additional 5 members (NOT in UGP-GBIC competition teams)
-  (gen_random_uuid(), 'muhammad.ferdynand@ncd.id', 'NEW001', 'Muhammad Ferdynand Syah', 'Member', 'Not Assigned', 'Not Assigned', true, '{}', '{}', '/images/placeholder-member.png', now(), now()),
-  (gen_random_uuid(), 'fanny.novianty@ncd.id', 'NEW002', 'Fanny Novianty Lumban Gaol', 'Member', 'Not Assigned', 'Not Assigned', true, '{}', '{}', '/images/placeholder-member.png', now(), now()),
-  (gen_random_uuid(), 'muhammad.raffi@ncd.id', 'NEW003', 'Muhammad Raffi Anam', 'Member', 'Not Assigned', 'Not Assigned', true, '{}', '{}', '/images/placeholder-member.png', now(), now()),
-  (gen_random_uuid(), 'farhan.putra@ncd.id', 'NEW004', 'Farhan Putra Pradhana', 'Member', 'Not Assigned', 'Not Assigned', true, '{}', '{}', '/images/placeholder-member.png', now(), now()),
-  (gen_random_uuid(), 'waldan.zubary@ncd.id', 'NEW005', 'Waldan Zubary', 'Member', 'Not Assigned', 'Not Assigned', true, '{}', '{}', '/images/placeholder-member.png', now(), now())
+  (gen_random_uuid(), 'muhammad.ferdynand@ncd.id', 'NEW001', 'Muhammad Ferdynand Syah', 'Member', 'Not Assigned', 'Not Assigned', true, '{}', '{}', null, now(), now()),
+  (gen_random_uuid(), 'fanny.novianty@ncd.id', 'NEW002', 'Fanny Novianty Lumban Gaol', 'Member', 'Not Assigned', 'Not Assigned', true, '{}', '{}', null, now(), now()),
+  (gen_random_uuid(), 'muhammad.raffi@ncd.id', 'NEW003', 'Muhammad Raffi Anam', 'Member', 'Not Assigned', 'Not Assigned', true, '{}', '{}', null, now(), now()),
+  (gen_random_uuid(), 'farhan.putra@ncd.id', 'NEW004', 'Farhan Putra Pradhana', 'Member', 'Not Assigned', 'Not Assigned', true, '{}', '{}', null, now(), now()),
+  (gen_random_uuid(), 'waldan.zubary@ncd.id', 'NEW005', 'Waldan Zubary', 'Member', 'Not Assigned', 'Not Assigned', true, '{}', '{}', null, now(), now())
 on conflict (npm) do update set
   full_name = excluded.full_name,
   email = excluded.email,
