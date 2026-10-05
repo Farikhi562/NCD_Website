@@ -34,6 +34,19 @@ export default function RegisterPage() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [step, setStep] = useState<"register" | "success" | "onboarding">("register");
   const [emailConfirmed, setEmailConfirmed] = useState(false);
+  const [resendState, setResendState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+
+  const handleResendConfirmation = async () => {
+    setResendState("sending");
+    const { error: resendError } = await supabase.auth.resend({
+      type: "signup",
+      email: email.trim(),
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/confirm`,
+      },
+    });
+    setResendState(resendError ? "error" : "sent");
+  };
 
   const validateField = (name: string, value: string): string | null => {
     switch (name) {
@@ -134,6 +147,8 @@ export default function RegisterPage() {
         // Handle specific error cases
         if (signUpError.message.includes("already registered") || signUpError.message.includes("already exists")) {
           setError("An account with this email already exists. Try signing in instead.");
+        } else if (/rate limit/i.test(signUpError.message)) {
+          setError("Too many sign-up attempts. Please wait a few minutes and try again.");
         } else {
           setError("Unable to create your account. Please try again.");
         }
@@ -144,13 +159,21 @@ export default function RegisterPage() {
 
       // Check if email confirmation is required
       if (data.user && !data.session) {
-        // Email confirmation required
-        setEmailConfirmed(true);
-        setStep("success");
+        if (data.user.identities && data.user.identities.length === 0) {
+          // Supabase hides existing confirmed accounts behind an obfuscated 200
+          // response with an empty identities array — no email was sent, so
+          // point the person at sign-in instead of a dead "check your email".
+          setError("An account with this email already exists. Try signing in instead.");
+          setLoading(false);
+        } else {
+          // Email confirmation required
+          setEmailConfirmed(true);
+          setStep("success");
+        }
       } else if (data.user && data.session) {
         // No email confirmation required - user is signed in
         // Redirect to onboarding (mandatory for new users)
-        router.push("/onboarding");
+        router.push("/app/onboarding");
         router.refresh();
       } else {
         // Unexpected state
@@ -209,7 +232,7 @@ export default function RegisterPage() {
       </h1>
       <p className="type-body text-text-secondary mb-8 max-w-sm mx-auto">
         {emailConfirmed
-          ? "We sent a confirmation link to your email address. Please check your inbox and click the link to verify your account."
+          ? "We sent a confirmation link to your email address. Check your inbox and click the link to verify your account. If it doesn't arrive within a few minutes, look in your spam folder."
           : "Your account has been created successfully."}
       </p>
       <div className="flex flex-col gap-3">
@@ -218,12 +241,32 @@ export default function RegisterPage() {
             Back to login
           </Button>
         )}
+        {emailConfirmed && (
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={handleResendConfirmation}
+            disabled={resendState === "sending" || resendState === "sent"}
+            className="w-full"
+          >
+            {resendState === "sending"
+              ? "Sending…"
+              : resendState === "sent"
+                ? "Confirmation email sent"
+                : "Resend confirmation email"}
+          </Button>
+        )}
         {!emailConfirmed && (
-          <Button onClick={() => router.push("/onboarding")} className="w-full">
+          <Button onClick={() => router.push("/app/onboarding")} className="w-full">
             Continue to onboarding
           </Button>
         )}
       </div>
+      {resendState === "error" && (
+        <p className="mt-3 type-caption text-danger" role="alert">
+          Could not resend right now. Please wait a minute and try again.
+        </p>
+      )}
     </div>
   );
 

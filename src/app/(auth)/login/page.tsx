@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2, Users, FolderKanban, Trophy, BookOpen, Calendar, Sparkles, Mail, Lock } from "lucide-react";
+import { Loader2, Users, FolderKanban, Trophy, BookOpen, Calendar, Sparkles, Mail, Lock, CheckCircle, AlertCircle } from "lucide-react";
 import { AuthShell } from "@/components/ui/AuthShell";
 import { Button } from "@/components/ui/Button";
 import { InputWithIcon } from "@/components/ui/Field";
@@ -35,25 +35,65 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showResend, setShowResend] = useState(false);
+  const [resendState, setResendState] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [mode, setMode] = useState<"login" | "reset">("login");
 
   const supabase = createClient();
 
-  // If already authenticated, redirect appropriately
-  if (status === "authenticated" && user) {
-    // This will be handled by middleware, but as a fallback:
-    router.replace(redirectTo);
-    return null;
-  }
+  // Set by /auth/confirm after the emailed verification link was handled.
+  const verifiedNotice = searchParams.get("verified") === "1";
+  const verifyExpired = searchParams.get("verify_error") === "expired";
+
+  // Authenticated users don't belong on /login: middleware already redirects
+  // them server-side; this is the client-side fallback after hydration.
+  useEffect(() => {
+    if (status === "authenticated" && user) {
+      router.replace(redirectTo);
+    }
+  }, [status, user, redirectTo, router]);
+
+  /** Maps Supabase Auth errors to copy a person can act on (no raw internals). */
+  const loginErrorHint = (message: string): { text: string; unconfirmed: boolean } => {
+    if (/not confirmed/i.test(message)) {
+      return {
+        text: "Your email hasn't been verified yet. Check your inbox (and spam folder) for the confirmation link, or resend it below.",
+        unconfirmed: true,
+      };
+    }
+    if (/invalid login credentials/i.test(message)) {
+      return { text: "Incorrect email or password. Check your details and try again.", unconfirmed: false };
+    }
+    if (/rate limit|too many|security purposes/i.test(message)) {
+      return { text: "Too many attempts. Please wait a moment and try again.", unconfirmed: false };
+    }
+    return { text: "Unable to sign in right now. Please try again.", unconfirmed: false };
+  };
+
+  const handleResendConfirmation = async () => {
+    setResendState("sending");
+    const { error: resendError } = await supabase.auth.resend({
+      type: "signup",
+      email: email.trim(),
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/confirm`,
+      },
+    });
+    setResendState(resendError ? "error" : "sent");
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setShowResend(false);
+    setResendState("idle");
     setLoading(true);
 
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      setError(error.message);
+      const hint = loginErrorHint(error.message);
+      setError(hint.text);
+      setShowResend(hint.unconfirmed);
       setLoading(false);
     } else {
       // Successful login - the AuthProvider's onAuthStateChange will handle profile fetch
@@ -69,7 +109,7 @@ export default function LoginPage() {
     setLoading(true);
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/reset-password`,
+      redirectTo: `${window.location.origin}/reset-password`,
     });
 
     if (error) {
@@ -126,6 +166,29 @@ export default function LoginPage() {
         <p className="type-body text-text-secondary mt-2">Sign in to continue to NCD.</p>
       </div>
 
+      {verifiedNotice && (
+        <div
+          className="mb-4 flex items-center gap-2 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success"
+          role="status"
+        >
+          <CheckCircle className="size-4 flex-shrink-0" aria-hidden="true" />
+          <span>Your email is verified. Sign in with your password to continue.</span>
+        </div>
+      )}
+
+      {verifyExpired && (
+        <div
+          className="mb-4 flex items-center gap-2 rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger"
+          role="alert"
+        >
+          <AlertCircle className="size-4 flex-shrink-0" aria-hidden="true" />
+          <span>
+            This verification link is invalid or has expired. Check your email for a newer link, or
+            register again to start over.
+          </span>
+        </div>
+      )}
+
       <InputWithIcon
         id="login-email"
         label="Email"
@@ -153,6 +216,28 @@ export default function LoginPage() {
       />
 
       {error && <AuthError message={error} />}
+
+      {showResend && (
+        <div className="mt-2 text-center">
+          <button
+            type="button"
+            onClick={handleResendConfirmation}
+            disabled={resendState === "sending" || resendState === "sent"}
+            className="text-sm font-medium text-ncd-electric hover:underline disabled:text-text-disabled"
+          >
+            {resendState === "sending"
+              ? "Sending…"
+              : resendState === "sent"
+                ? "Confirmation email sent"
+                : "Resend confirmation email"}
+          </button>
+          {resendState === "error" && (
+            <p className="mt-1 type-caption text-danger" role="alert">
+              Could not resend right now. Please wait a minute and try again.
+            </p>
+          )}
+        </div>
+      )}
 
       <Button type="submit" disabled={loading} className="mt-6 w-full h-11">
         {loading ? <Loader2 className="size-4 animate-spin" /> : "Sign In"}
